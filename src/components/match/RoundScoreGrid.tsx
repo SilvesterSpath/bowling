@@ -17,7 +17,7 @@ export function RoundScoreGrid({
   onScoreChange,
 }: RoundScoreGridProps) {
   return (
-    <ul className="score-grid">
+    <ul className='score-grid'>
       {players.map((player) => {
         const entry = round.scores.find(
           (score) => score.playerId === player.id,
@@ -29,7 +29,7 @@ export function RoundScoreGrid({
             key={player.id}
             className={`score-grid__row${missing ? ' score-grid__row--missing' : ''}`}
           >
-            <label className="score-grid__label" htmlFor={`score-${player.id}`}>
+            <label className='score-grid__label' htmlFor={`score-${player.id}`}>
               <PlayerNameWithTitle
                 name={displayName(player)}
                 title={titlesByPlayerId.get(player.id)?.funny}

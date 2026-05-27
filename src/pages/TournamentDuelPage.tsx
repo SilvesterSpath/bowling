@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
+import { PlayPageHint } from '../components/match/PlayPageHint';
 import { RoundNavigator } from '../components/match/RoundNavigator';
 import { RoundScoreGrid } from '../components/match/RoundScoreGrid';
 import { AppShell } from '../components/layout/AppShell';
@@ -169,11 +170,9 @@ export function TournamentDuelPage() {
         }
       />
 
-      {!roundComplete ? (
-        <p className='play-page__hint' role='status'>
-          Töltsd ki minden játékos pontszámát (0–10).
-        </p>
-      ) : null}
+      <PlayPageHint visible={!roundComplete}>
+        Töltsd ki minden játékos pontszámát (0–10).
+      </PlayPageHint>
 
       <RoundScoreGrid
         round={round}

@@ -830,10 +830,20 @@ fieldset.match-setup__section > .match-setup__hint {
 }
 
 .play-page__hint {
+  margin: 0;
+  min-height: 2.75em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   color: var(--color-gold);
   font-weight: 600;
   font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+.play-page__hint--hidden {
+  visibility: hidden;
 }
 
 .play-page__footer {
