@@ -65,10 +65,10 @@ export function DataBackupPanel() {
   };
 
   return (
-    <section className="backup-panel">
-      <h2 className="backup-panel__title">Biztonsági mentés</h2>
+    <details className="backup-panel">
+      <summary className="backup-panel__summary">Biztonsági mentés</summary>
       <p className="backup-panel__hint">
-        Mentsd le az adatokat buli előtt — így nem vesznek el.
+        Mentsd le az eredményeket a buli után — hogy később is megmaradjanak.
       </p>
       <div className="backup-panel__actions">
         <button
@@ -106,6 +106,6 @@ export function DataBackupPanel() {
           setPendingData(null);
         }}
       />
-    </section>
+    </details>
   );
 }

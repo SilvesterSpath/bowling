@@ -59,8 +59,7 @@ p {
   min-height: 100svh;
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: env(safe-area-inset-top) var(--space-md)
-    env(safe-area-inset-bottom);
+  padding: env(safe-area-inset-top) var(--space-md) env(safe-area-inset-bottom);
   display: flex;
   flex-direction: column;
 }
@@ -139,7 +138,9 @@ p {
   font-size: 1.05rem;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.1s ease, opacity 0.1s ease;
+  transition:
+    transform 0.1s ease,
+    opacity 0.1s ease;
 }
 
 .btn:active {
@@ -856,10 +857,20 @@ p {
   border: 1px solid var(--color-border);
 }
 
-.backup-panel__title {
+.backup-panel__summary {
   font-size: 1rem;
+  font-weight: 700;
   color: var(--color-gold);
-  margin-bottom: var(--space-xs);
+  cursor: pointer;
+  list-style: none;
+}
+
+.backup-panel__summary::-webkit-details-marker {
+  display: none;
+}
+
+.backup-panel[open] .backup-panel__summary {
+  margin-bottom: var(--space-sm);
 }
 
 .backup-panel__hint {
@@ -892,4 +903,107 @@ p {
   color: #fff;
   font-weight: 600;
   text-align: center;
+}
+
+/* Moderate vertical density on in-app pages (home keeps full spacing). */
+.app-shell--compact .app-shell__main {
+  gap: var(--space-md);
+}
+
+.app-shell--compact .page-header {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: var(--space-sm);
+  padding-top: var(--space-xs);
+}
+
+.app-shell--compact .page-header__back {
+  min-height: 2.75rem;
+}
+
+.app-shell--compact .page-header__spacer {
+  display: none;
+}
+
+.app-shell--compact .page-header__title {
+  font-size: 1.35rem;
+}
+
+.app-shell--compact .match-end__section {
+  gap: var(--space-sm);
+}
+
+.app-shell--compact .match-end__intro {
+  font-size: 0.95rem;
+}
+
+.app-shell--compact .title-card-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-sm);
+}
+
+.app-shell--compact .title-card {
+  padding: var(--space-sm) var(--space-md);
+}
+
+.app-shell--compact .title-card__name {
+  font-size: 1.05rem;
+}
+
+.app-shell--compact .title-card__label {
+  font-size: 0.95rem;
+}
+
+.app-shell--compact .history-detail {
+  gap: var(--space-md);
+}
+
+.app-shell--compact .history-rounds__summary {
+  font-size: 1.1rem;
+  color: var(--color-gold);
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+
+.app-shell--compact .history-rounds__summary::-webkit-details-marker {
+  display: none;
+}
+
+.app-shell--compact .history-rounds[open] .history-rounds__summary {
+  margin-bottom: var(--space-sm);
+}
+
+.app-shell--compact .score-grid {
+  gap: var(--space-xs);
+}
+
+.app-shell--compact .score-grid__row {
+  padding: var(--space-sm) var(--space-md);
+  gap: var(--space-sm);
+}
+
+.app-shell--compact .score-grid__input {
+  font-size: 1.35rem;
+  padding: var(--space-xs) var(--space-sm);
+}
+
+.app-shell--compact .play-page__footer {
+  padding-top: var(--space-sm);
+  gap: var(--space-xs);
+}
+
+.app-shell--compact .leaderboard-table th,
+.app-shell--compact .leaderboard-table td {
+  padding: var(--space-xs) var(--space-sm);
+}
+
+.app-shell--compact .player-list__item {
+  padding: var(--space-sm) var(--space-md);
+}
+
+.app-shell--compact .match-setup {
+  gap: var(--space-md);
 }

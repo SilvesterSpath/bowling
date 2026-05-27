@@ -11,7 +11,7 @@ export function LeaderboardPage() {
   const { state } = useAppState();
 
   if (!activeMatch) {
-    return <Navigate to="/" replace />;
+    return <Navigate to='/' replace />;
   }
 
   const rankings = getRankings(activeMatch);
@@ -22,14 +22,18 @@ export function LeaderboardPage() {
   );
 
   return (
-    <AppShell>
-      <PageHeader title="Eredménytábla" backTo="/match/play" backLabel="Játék" />
-      <p className="leaderboard-page__match">{activeMatch.name}</p>
+    <AppShell compact>
+      <PageHeader
+        title='Eredménytábla'
+        backTo='/match/play'
+        backLabel='Játék'
+      />
+      <p className='leaderboard-page__match'>{activeMatch.name}</p>
       <LeaderboardTable rankings={rankings} playersById={playersById} />
-      <Link to="/match/end" className="btn btn--primary btn--block">
+      <Link to='/match/end' className='btn btn--primary btn--block'>
         Meccs vége
       </Link>
-      <Link to="/match/play" className="btn btn--secondary btn--block">
+      <Link to='/match/play' className='btn btn--secondary btn--block'>
         Vissza a játékhoz
       </Link>
     </AppShell>

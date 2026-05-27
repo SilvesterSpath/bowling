@@ -4,7 +4,7 @@ import { MatchSetupForm } from '../components/match/MatchSetupForm';
 
 export function NewMatchPage() {
   return (
-    <AppShell>
+    <AppShell compact>
       <PageHeader title="Új meccs" backTo="/" />
       <MatchSetupForm />
     </AppShell>

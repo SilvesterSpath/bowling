@@ -15,7 +15,7 @@ export function PlaceholderPage({
   backLabel,
 }: PlaceholderPageProps) {
   return (
-    <AppShell>
+    <AppShell compact>
       <PageHeader title={title} backTo={backTo} backLabel={backLabel} />
       <div className="placeholder-page">
         <p className="placeholder-page__badge">Hamarosan</p>

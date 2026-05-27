@@ -15,20 +15,20 @@ export function HistoryDetail({ match, players }: HistoryDetailProps) {
   const titles = match.titles ?? [];
 
   return (
-    <div className="history-detail">
-      <p className="history-detail__date">
+    <div className='history-detail'>
+      <p className='history-detail__date'>
         {formatMatchDate(match.completedAt ?? match.createdAt)}
       </p>
 
-      <section className="match-end__section">
-        <h2 className="match-end__heading">Végeredmény</h2>
+      <section className='match-end__section'>
+        <h2 className='match-end__heading'>Végeredmény</h2>
         <LeaderboardTable rankings={rankings} playersById={playersById} />
       </section>
 
       {titles.length > 0 ? (
-        <section className="match-end__section">
-          <h2 className="match-end__heading">Címek</h2>
-          <div className="title-card-list">
+        <section className='match-end__section'>
+          <h2 className='match-end__heading'>Címek</h2>
+          <div className='title-card-list'>
             {titles.map((title) => {
               const player = playersById.get(title.playerId);
               if (!player) {
@@ -42,15 +42,15 @@ export function HistoryDetail({ match, players }: HistoryDetailProps) {
         </section>
       ) : null}
 
-      <section className="match-end__section">
-        <h2 className="match-end__heading">Körök</h2>
+      <details className="match-end__section history-rounds">
+        <summary className="history-rounds__summary">Körök</summary>
         <div className="rounds-table-wrap">
           <table className="rounds-table">
             <thead>
               <tr>
-                <th scope="col">Kör</th>
+                <th scope='col'>Kör</th>
                 {players.map((player) => (
-                  <th key={player.id} scope="col">
+                  <th key={player.id} scope='col'>
                     {displayName(player)}
                   </th>
                 ))}
@@ -64,18 +64,14 @@ export function HistoryDetail({ match, players }: HistoryDetailProps) {
                     const entry = round.scores.find(
                       (score) => score.playerId === player.id,
                     );
-                    return (
-                      <td key={player.id}>
-                        {entry?.score ?? '—'}
-                      </td>
-                    );
+                    return <td key={player.id}>{entry?.score ?? '—'}</td>;
                   })}
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      </section>
+      </details>
     </div>
   );
 }

@@ -28,14 +28,13 @@ export function PlayMatchPage() {
     }
     return (
       state.matches.find(
-        (match) =>
-          match.id === activeMatch.id && match.status === 'active',
+        (match) => match.id === activeMatch.id && match.status === 'active',
       ) ?? null
     );
   }, [activeMatch, state.matches]);
 
   if (!activeMatch || !matchFromState) {
-    return <Navigate to="/" replace />;
+    return <Navigate to='/' replace />;
   }
 
   const players = sortPlayersByName(
@@ -65,9 +64,7 @@ export function PlayMatchPage() {
             return {
               ...r,
               scores: r.scores.map((entry) =>
-                entry.playerId === playerId
-                  ? { ...entry, score }
-                  : entry,
+                entry.playerId === playerId ? { ...entry, score } : entry,
               ),
             };
           }),
@@ -83,23 +80,25 @@ export function PlayMatchPage() {
   };
 
   if (!round) {
-    return <Navigate to="/" replace />;
+    return <Navigate to='/' replace />;
   }
 
   return (
-    <AppShell>
-      <PageHeader title="Játék" backTo="/" />
-      <p className="play-page__match-name">{matchFromState.name}</p>
+    <AppShell compact>
+      <PageHeader title='Játék' backTo='/' />
+      <p className='play-page__match-name'>{matchFromState.name}</p>
 
       <RoundNavigator
         currentRound={roundIndex}
         roundCount={matchFromState.roundCount}
         onPrev={() => setRoundIndex((prev) => Math.max(1, prev - 1))}
-        onNext={() => setRoundIndex((prev) => Math.min(matchFromState.roundCount, prev + 1))}
+        onNext={() =>
+          setRoundIndex((prev) => Math.min(matchFromState.roundCount, prev + 1))
+        }
       />
 
       {!roundComplete ? (
-        <p className="play-page__hint" role="status">
+        <p className='play-page__hint' role='status'>
           Töltsd ki minden játékos pontszámát (0–10).
         </p>
       ) : null}
@@ -110,20 +109,20 @@ export function PlayMatchPage() {
         onScoreChange={handleScoreChange}
       />
 
-      <footer className="play-page__footer">
+      <footer className='play-page__footer'>
         <button
-          type="button"
-          className="btn btn--primary btn--block"
+          type='button'
+          className='btn btn--primary btn--block'
           disabled={!roundComplete || roundIndex >= matchFromState.roundCount}
           onClick={goNextRound}
         >
           Következő kör
         </button>
-        <Link to="/match/leaderboard" className="btn btn--secondary btn--block">
+        <Link to='/match/leaderboard' className='btn btn--secondary btn--block'>
           Eredménytábla
         </Link>
         {allComplete ? (
-          <Link to="/match/end" className="btn btn--secondary btn--block">
+          <Link to='/match/end' className='btn btn--secondary btn--block'>
             Meccs vége
           </Link>
         ) : null}

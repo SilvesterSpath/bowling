@@ -5,7 +5,7 @@ import { PlayerList } from '../components/players/PlayerList';
 
 export function PlayersPage() {
   return (
-    <AppShell>
+    <AppShell compact>
       <PageHeader title="Játékosok" backTo="/" />
       <PlayerForm />
       <PlayerList />

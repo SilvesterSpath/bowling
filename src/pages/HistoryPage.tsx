@@ -16,13 +16,17 @@ export function HistoryPage() {
 
     if (!match || match.status !== 'completed') {
       return (
-        <AppShell>
-          <PageHeader title="Meccs részletei" backTo="/history" backLabel="Előzmények" />
-          <div className="placeholder-page">
-            <p className="placeholder-page__text">
+        <AppShell compact>
+          <PageHeader
+            title='Meccs részletei'
+            backTo='/history'
+            backLabel='Előzmények'
+          />
+          <div className='placeholder-page'>
+            <p className='placeholder-page__text'>
               Ez a meccs nem található, vagy még nem fejeződött be.
             </p>
-            <Link to="/history" className="btn btn--primary btn--block">
+            <Link to='/history' className='btn btn--primary btn--block'>
               Vissza az előzményekhez
             </Link>
           </div>
@@ -35,11 +39,11 @@ export function HistoryPage() {
     );
 
     return (
-      <AppShell>
+      <AppShell compact>
         <PageHeader
           title={match.name}
-          backTo="/history"
-          backLabel="Előzmények"
+          backTo='/history'
+          backLabel='Előzmények'
         />
         <HistoryDetail match={match} players={players} />
       </AppShell>
@@ -49,8 +53,8 @@ export function HistoryPage() {
   const completed = getCompletedMatches(state.matches);
 
   return (
-    <AppShell>
-      <PageHeader title="Előzmények" backTo="/" />
+    <AppShell compact>
+      <PageHeader title='Előzmények' backTo='/' />
       <HistoryList matches={completed} players={state.players} />
     </AppShell>
   );

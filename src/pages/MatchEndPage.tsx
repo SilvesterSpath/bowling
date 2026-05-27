@@ -32,8 +32,7 @@ export function MatchEndPage() {
   );
 
   const titles = useMemo(
-    () =>
-      activeMatch ? computeTitles(activeMatch, matchPlayers) : [],
+    () => (activeMatch ? computeTitles(activeMatch, matchPlayers) : []),
     [activeMatch, matchPlayers],
   );
 
@@ -43,7 +42,7 @@ export function MatchEndPage() {
   );
 
   if (!activeMatch) {
-    return <Navigate to="/" replace />;
+    return <Navigate to='/' replace />;
   }
 
   const handleFinalize = () => {
@@ -76,18 +75,22 @@ export function MatchEndPage() {
   };
 
   return (
-    <AppShell>
-      <PageHeader title="Meccs vége" backTo="/match/leaderboard" backLabel="Eredménytábla" />
-      <p className="match-end__intro">Szilveszter Cup — vicces címek</p>
+    <AppShell compact>
+      <PageHeader
+        title='Meccs vége'
+        backTo='/match/leaderboard'
+        backLabel='Eredménytábla'
+      />
+      <p className='match-end__intro'>Szilveszter Cup — vicces címek</p>
 
-      <section className="match-end__section">
-        <h2 className="match-end__heading">Végeredmény</h2>
+      <section className='match-end__section'>
+        <h2 className='match-end__heading'>Végeredmény</h2>
         <LeaderboardTable rankings={rankings} playersById={playersById} />
       </section>
 
-      <section className="match-end__section">
-        <h2 className="match-end__heading">Címek</h2>
-        <div className="title-card-list">
+      <section className='match-end__section'>
+        <h2 className='match-end__heading'>Címek</h2>
+        <div className='title-card-list'>
           {titles.map((title) => {
             const player = playersById.get(title.playerId);
             if (!player) {
@@ -101,8 +104,8 @@ export function MatchEndPage() {
       </section>
 
       <button
-        type="button"
-        className="btn btn--primary btn--block"
+        type='button'
+        className='btn btn--primary btn--block'
         onClick={() => setFinalizeOpen(true)}
       >
         Befejezés — mentés az előzményekbe
@@ -110,9 +113,9 @@ export function MatchEndPage() {
 
       <ConfirmDialog
         open={finalizeOpen}
-        title="Meccs befejezése"
-        message="A meccs az előzményekbe kerül, és nem lesz szerkeszthető. Folytatod?"
-        confirmLabel="Befejezés"
+        title='Meccs befejezése'
+        message='A meccs az előzményekbe kerül, és nem lesz szerkeszthető. Folytatod?'
+        confirmLabel='Befejezés'
         onConfirm={handleFinalize}
         onCancel={() => setFinalizeOpen(false)}
       />

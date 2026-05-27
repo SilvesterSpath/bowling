@@ -12,15 +12,15 @@ export function PageHeader({
   backLabel = 'Vissza',
 }: PageHeaderProps) {
   return (
-    <header className="page-header">
+    <header className='page-header'>
       {backTo ? (
-        <Link to={backTo} className="page-header__back">
+        <Link to={backTo} className='page-header__back'>
           ← {backLabel}
         </Link>
       ) : (
-        <span className="page-header__spacer" aria-hidden="true" />
+        <span className='page-header__spacer' aria-hidden='true' />
       )}
-      <h1 className="page-header__title">{title}</h1>
+      <h1 className='page-header__title'>{title}</h1>
     </header>
   );
 }
