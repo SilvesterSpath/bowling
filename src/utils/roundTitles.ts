@@ -2,7 +2,7 @@ import {
   getRoundTitleLabel,
   type RoundTitleKey,
 } from '../constants/roundTitles';
-import type { PlayerId, PlayerTitle, Round } from '../types';
+import type { Match, PlayerId, PlayerTitle, Round } from '../types';
 import { isRoundComplete } from './scoring';
 
 interface RoundPlayerStat {
@@ -63,6 +63,17 @@ function assign(
     key,
     label: getRoundTitleLabel(key, roundIndex, playerOffset),
   });
+}
+
+/** Latest round (highest index) that has every score filled, or null. */
+export function getLatestCompleteRound(match: Match): Round | null {
+  for (let i = match.rounds.length - 1; i >= 0; i -= 1) {
+    const round = match.rounds[i];
+    if (isRoundComplete(round)) {
+      return round;
+    }
+  }
+  return null;
 }
 
 /**
