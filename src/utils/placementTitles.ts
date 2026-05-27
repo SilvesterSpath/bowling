@@ -3,7 +3,7 @@ import {
   PLACEMENT_TITLE_DEFAULT,
   PLACEMENT_TITLE_LAST,
 } from '../constants/placementTitles';
-import type { Match, Player, PlayerTitle } from '../types';
+import type { Match, PlayerTitle } from '../types';
 import { getRankings } from './scoring';
 
 const LEGACY_FINALE_TITLE_KEYS = new Set([
@@ -64,10 +64,7 @@ function labelForRank(
  * End-of-match titles from each player's final standing (getRankings).
  * Tied totals share the same rank and the same title.
  */
-export function computePlacementTitles(
-  match: Match,
-  _players: Player[],
-): PlayerTitle[] {
+export function computePlacementTitles(match: Match): PlayerTitle[] {
   const rankings = getRankings(match);
   const lastRank = rankings.reduce(
     (max, entry) => Math.max(max, entry.rank),

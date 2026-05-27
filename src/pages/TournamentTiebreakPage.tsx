@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { RoundScoreGrid } from '../components/match/RoundScoreGrid';
 import { AppShell } from '../components/layout/AppShell';
@@ -17,7 +17,6 @@ import {
   getDuelMainTotals,
   getIncompleteTieBreakRound,
   isDuelMainComplete,
-  needsAnotherTieBreakRound,
   needsTieBreak,
   updateActiveTournament,
   updateDuelById,
@@ -28,7 +27,6 @@ export function TournamentTiebreakPage() {
   const navigate = useNavigate();
   const activeTournament = useActiveTournament();
   const { state, update } = useAppState();
-  const [ensuredRound, setEnsuredRound] = useState(false);
 
   const tournament = useMemo(() => {
     if (!activeTournament) {
@@ -46,24 +44,6 @@ export function TournamentTiebreakPage() {
     () => (tournament ? getActiveDuel(tournament) : null),
     [tournament],
   );
-
-  useEffect(() => {
-    if (!tournament || !duel || ensuredRound) {
-      return;
-    }
-    if (getIncompleteTieBreakRound(duel)) {
-      setEnsuredRound(true);
-      return;
-    }
-    if (needsAnotherTieBreakRound(duel)) {
-      update((prev) =>
-        updateActiveTournament(prev, (t) =>
-          updateDuelById(t, duel.id, appendTieBreakRound),
-        ),
-      );
-      setEnsuredRound(true);
-    }
-  }, [tournament, duel, ensuredRound, update]);
 
   if (!tournament || !duel) {
     return <Navigate to='/tournament' replace />;
@@ -83,9 +63,6 @@ export function TournamentTiebreakPage() {
 
   const tieBreakEntry = getIncompleteTieBreakRound(duel);
   if (!tieBreakEntry) {
-    if (!ensuredRound) {
-      return null;
-    }
     return <Navigate to='/tournament/duel' replace />;
   }
 
@@ -135,10 +112,7 @@ export function TournamentTiebreakPage() {
     }
     const outcome = compareTieBreakRound(duel, tieBreakRound);
     if (outcome === 'tie') {
-      const result = persistDuel(appendTieBreakRound);
-      if (result.ok) {
-        setEnsuredRound(false);
-      }
+      persistDuel(appendTieBreakRound);
       return;
     }
     if (outcome === 'incomplete') {

@@ -37,8 +37,8 @@ export function MatchEndPage() {
 
   const titles = useMemo(
     () =>
-      activeMatch ? computePlacementTitles(activeMatch, matchPlayers) : [],
-    [activeMatch, matchPlayers],
+      activeMatch ? computePlacementTitles(activeMatch) : [],
+    [activeMatch],
   );
 
   const playersById = useMemo(
@@ -51,7 +51,7 @@ export function MatchEndPage() {
   }
 
   const handleFinalize = () => {
-    const computedTitles = computePlacementTitles(activeMatch, matchPlayers);
+    const computedTitles = computePlacementTitles(activeMatch);
     const completedAt = new Date().toISOString();
 
     const result = update((prev) => {

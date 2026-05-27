@@ -79,6 +79,25 @@ describe('buildFirstBracketRound', () => {
     expect(round.byePlayerId).toBe('c');
   });
 
+  it('4 players: two semifinal duels, no bye', () => {
+    const round = buildFirstBracketRound(['a', 'b', 'c', 'd'], {
+      shuffle: false,
+      roundsPerDuel: 1,
+    });
+    expect(round.duels).toHaveLength(2);
+    expect(round.byePlayerId).toBeUndefined();
+    expect(round.label).toBe('Elődöntő');
+  });
+
+  it('5 players: two duels and erőnyerő', () => {
+    const round = buildFirstBracketRound(['a', 'b', 'c', 'd', 'e'], {
+      shuffle: false,
+      roundsPerDuel: 1,
+    });
+    expect(round.duels).toHaveLength(2);
+    expect(round.byePlayerId).toBe('e');
+  });
+
   it('8 players: four duels, no bye', () => {
     const ids = ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8'];
     const round = buildFirstBracketRound(ids, {

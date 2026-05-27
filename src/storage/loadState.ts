@@ -291,7 +291,7 @@ function normalizeState(state: AppState): AppState {
     .map(normalizeTournament)
     .filter((tournament): tournament is Tournament => tournament !== null);
 
-  let activeMatchId =
+  const activeMatchId =
     state.activeMatchId &&
     matches.some(
       (match) => match.id === state.activeMatchId && match.status === 'active',
@@ -299,7 +299,7 @@ function normalizeState(state: AppState): AppState {
       ? state.activeMatchId
       : null;
 
-  let activeTournamentId =
+  const activeTournamentId =
     state.activeTournamentId &&
     tournaments.some(
       (tournament) =>

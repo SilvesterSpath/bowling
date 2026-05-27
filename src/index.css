@@ -992,6 +992,22 @@ fieldset.match-setup__section > .match-setup__hint {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
 
+@keyframes save-indicator-fade {
+  0%,
+  20% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+.save-indicator--flash {
+  animation: save-indicator-fade 2s ease-out forwards;
+  pointer-events: none;
+}
+
 .backup-panel {
   padding: var(--space-md);
   background: var(--color-surface);

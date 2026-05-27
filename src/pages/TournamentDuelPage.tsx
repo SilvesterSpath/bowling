@@ -11,6 +11,7 @@ import { displayName } from '../utils/format';
 import { sortPlayersByName } from '../utils/players';
 import { parseScoreInput } from '../utils/scoring';
 import {
+  appendTieBreakRound,
   canAdvanceFromDuelRound,
   compareMainDuelTotals,
   finishDuel,
@@ -108,7 +109,14 @@ export function TournamentDuelPage() {
     }
     const outcome = compareMainDuelTotals(duel);
     if (outcome === 'tie') {
-      navigate('/tournament/duel/tiebreak');
+      const result = update((prev) =>
+        updateActiveTournament(prev, (t) =>
+          updateDuelById(t, duel.id, appendTieBreakRound),
+        ),
+      );
+      if (result.ok) {
+        navigate('/tournament/duel/tiebreak');
+      }
       return;
     }
     if (outcome === 'incomplete') {
