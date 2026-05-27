@@ -2,9 +2,9 @@
 
 ## Phase
 
-**Bajnokság titles — Phase 2** (completed)
+**Bajnokság titles — Phase 3** (completed)
 
-Bracket elimination rankings and placement title computation (data layer only — no UI yet).
+Persist placement titles on finalize and show **Helyezési címek** on the champion screen.
 
 ## Status
 
@@ -12,49 +12,45 @@ Completed — 2026-05-27
 
 **Branch:** `feature/bajnoksag-titles`
 
-## Goals (Titles Phase 2)
+## Goals (Titles Phase 3)
 
-- [x] `eliminationRankForBracketRound` + `getTournamentEliminationRankings(tournament)`
-- [x] `computeTournamentPlacementTitles(tournament)` in `placementTitles.ts`
-- [x] Shared `labelForRank` for match + tournament (Meccs `computePlacementTitles` unchanged)
-- [x] Unit tests: 2 / 3 / 4 / 5 player elimination ranks
-- [x] `placementTitles.test.ts` — match regression + tournament label mapping
-- [x] `npm run build` + `npm run test` (24/24) + `npm run lint` (clean)
-
-## Ranking rules
-
-For each completed duel, the **loser** gets a rank from that bracket round’s pool:
-
-- `poolSize = duels.length × 2 + (bye ? 1 : 0)`
-- `eliminationRank = poolSize - duels.length + 1`
-- `championId` → rank **1**
-- Losers in the same round share the same rank (e.g. 4-player semi losers both rank 3)
+- [x] `Tournament.titles?: PlayerTitle[]` on type
+- [x] `loadState` — `normalizePlayerTitles` for matches + tournaments
+- [x] `finalizeActiveTournament` — sets `titles: computeTournamentPlacementTitles(...)`
+- [x] `TournamentChampionPage` — **Helyezési címek** section for all entrants (live compute, matches finalize snapshot)
+- [x] Test: finalize persists titles
+- [x] `npm run build` + `npm run test` (25/25) + `npm run lint` (clean)
 
 ## What was built
 
 | File | Change |
 |------|--------|
-| `src/utils/tournament.ts` | `eliminationRankForBracketRound`, `getTournamentEliminationRankings` |
-| `src/utils/placementTitles.ts` | `computeTournamentPlacementTitles` |
-| `src/utils/tournament.test.ts` | +5 tests for elimination rankings |
-| `src/utils/placementTitles.test.ts` | **New** — Meccs + tournament placement labels |
+| `src/types/tournament.ts` | Optional `titles?: PlayerTitle[]` |
+| `src/storage/loadState.ts` | `normalizePlayerTitles`; tournament + match titles |
+| `src/utils/tournament.ts` | Finalize stores placement titles |
+| `src/pages/TournamentChampionPage.tsx` | `TitleCard` list below champion hero |
+| `src/index.css` | `champion-page__placements` spacing |
+| `src/utils/placementTitles.test.ts` | Finalize persistence test |
+
+## Champion screen flow
+
+1. Bracket completes → champion screen (trophy + name).
+2. **Helyezési címek** — every entrant with bracket-based placement label (same order as rankings).
+3. **Befejezés** → `status: completed`, `titles` saved, `activeTournamentId` cleared.
 
 ## Automated verification
 
 | Check | Result |
 |-------|--------|
 | `npm run build` | Pass |
-| `npm run test` | 24/24 pass |
+| `npm run test` | 25/25 pass |
 | `npm run lint` | Pass |
 
-## Example ranks (verified in tests)
+## Manual smoke (recommended)
 
-| Players | Champion | 2nd | 3rd / tied |
-|---------|----------|-----|------------|
-| 2 | a | b | — |
-| 3 (bye) | a | c | b |
-| 4 | a | c | b, d (tied) |
-| 5 | a | e | c; b, d (tied 4th) |
+- [ ] Finish a bajnokság → champion page shows all **Helyezési címek**
+- [ ] **Befejezés** → export JSON includes `tournament.titles`
+- [ ] Reload → completed tournament still has `titles` in state
 
 ## Titles implementation phases
 
@@ -62,19 +58,18 @@ For each completed duel, the **loser** gets a rank from that bracket round’s p
 |-------|-------------|--------|
 | 0 | Context + regression gate | Done |
 | 1 | Live round titles (duel + tiebreak) | Done |
-| 2 | Elimination rankings + placement compute | **Done** |
-| 3 | `Tournament.titles` + champion UI | Next |
-| 4 | History recap + placement in detail | Pending |
+| 2 | Elimination rankings + placement compute | Done |
+| 3 | Persist + champion UI | **Done** |
+| 4 | History recap + placement in detail | Next |
 | 5 | Docs + sign-off | Pending |
 
 ## Next phase
 
-**Titles Phase 3 — Champion screen + persist**
+**Titles Phase 4 — History parity**
 
-- `titles?: PlayerTitle[]` on `Tournament`
-- `loadState` normalize
-- `finalizeActiveTournament` stores titles
-- `TournamentChampionPage` — **Helyezési címek** for all entrants
+- Generalize `RoundTitlesRecap` for duels
+- `DuelRoundTitlesRecap` in tournament history detail
+- Show stored `tournament.titles` on `/history/tournament/:id`
 
 ## References
 
@@ -82,5 +77,5 @@ For each completed duel, the **loser** gets a rank from that bracket round’s p
 
 ## History
 
-- 2026-05-27 — Titles Phase 0–1.
-- 2026-05-27 — Titles Phase 2: elimination rankings + `computeTournamentPlacementTitles`.
+- 2026-05-27 — Titles Phases 0–2.
+- 2026-05-27 — Titles Phase 3: `Tournament.titles`, champion placements, finalize persist.

@@ -13,6 +13,7 @@ import type {
   TournamentBracketRound,
   TournamentDuel,
 } from '../types';
+import { computeTournamentPlacementTitles } from './placementTitles';
 import { createId } from './ids';
 import {
   createEmptyRounds,
@@ -724,15 +725,17 @@ export function finalizeActiveTournament(state: AppState): AppState {
   }
 
   const completedAt = new Date().toISOString();
-  const tournaments = state.tournaments.map((tournament) =>
-    tournament.id === activeId
-      ? {
-          ...tournament,
-          status: 'completed' as const,
-          completedAt,
-        }
-      : tournament,
-  );
+  const tournaments = state.tournaments.map((tournament) => {
+    if (tournament.id !== activeId) {
+      return tournament;
+    }
+    return {
+      ...tournament,
+      status: 'completed' as const,
+      completedAt,
+      titles: computeTournamentPlacementTitles(tournament),
+    };
+  });
 
   return {
     ...state,

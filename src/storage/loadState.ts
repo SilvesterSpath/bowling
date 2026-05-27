@@ -4,6 +4,7 @@ import type {
   AppState,
   Match,
   Player,
+  PlayerTitle,
   Round,
   RoundScore,
   Tournament,
@@ -117,8 +118,36 @@ function normalizeMatch(raw: unknown): Match | null {
     createdAt: match.createdAt,
     completedAt:
       typeof match.completedAt === 'string' ? match.completedAt : undefined,
-    titles: Array.isArray(match.titles) ? match.titles : undefined,
+    titles: normalizePlayerTitles(match.titles),
   };
+}
+
+function normalizePlayerTitles(raw: unknown): PlayerTitle[] | undefined {
+  if (!Array.isArray(raw)) {
+    return undefined;
+  }
+  const titles: PlayerTitle[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== 'object') {
+      continue;
+    }
+    const title = item as Partial<PlayerTitle>;
+    if (
+      typeof title.playerId !== 'string' ||
+      typeof title.key !== 'string' ||
+      typeof title.label !== 'string'
+    ) {
+      continue;
+    }
+    titles.push({
+      playerId: title.playerId,
+      key: title.key,
+      label: title.label.trim(),
+      subtitle:
+        typeof title.subtitle === 'string' ? title.subtitle : undefined,
+    });
+  }
+  return titles.length > 0 ? titles : undefined;
 }
 
 function normalizePlayer(raw: unknown): Player | null {
@@ -273,6 +302,7 @@ function normalizeTournament(raw: unknown): Tournament | null {
       typeof tournament.completedAt === 'string'
         ? tournament.completedAt
         : undefined,
+    titles: normalizePlayerTitles(tournament.titles),
   };
 }
 

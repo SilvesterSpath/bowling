@@ -4,7 +4,8 @@ import {
   PLACEMENT_TITLE_LAST,
 } from '../constants/placementTitles';
 import { computePlacementTitles, computeTournamentPlacementTitles } from './placementTitles';
-import { advanceBracket, createTournament } from './tournament';
+import { defaultState } from '../storage/defaultState';
+import { advanceBracket, createTournament, finalizeActiveTournament } from './tournament';
 import { createEmptyRounds } from './scoring';
 import type { Match, TournamentDuel } from '../types';
 
@@ -121,5 +122,53 @@ describe('computeTournamentPlacementTitles', () => {
     );
     expect(titles.find((t) => t.playerId === 'b')?.label).toBe(PLACEMENT_TITLE_LAST);
     expect(titles.find((t) => t.playerId === 'd')?.label).toBe(PLACEMENT_TITLE_LAST);
+  });
+});
+
+describe('finalizeActiveTournament', () => {
+  it('persists placement titles on completed tournament', () => {
+    let tournament = createTournament({
+      name: 'Cup',
+      playerIds: ['a', 'b'],
+      roundsPerDuel: 1,
+      shuffle: false,
+    });
+
+    const round = tournament.bracketRounds[0];
+    const duel = completeDuelMain(round.duels[0], 'a');
+    tournament = {
+      ...tournament,
+      bracketRounds: [{ ...round, duels: [duel] }],
+    };
+
+    const advanced = advanceBracket(tournament);
+    expect(advanced.type).toBe('champion');
+    if (advanced.type !== 'champion') {
+      return;
+    }
+
+    tournament = {
+      ...advanced.tournament,
+      championId: advanced.championId,
+    };
+
+    const state = {
+      ...defaultState(),
+      activeTournamentId: tournament.id,
+      tournaments: [tournament],
+    };
+
+    const next = finalizeActiveTournament(state);
+    expect(next.activeTournamentId).toBeNull();
+
+    const saved = next.tournaments.find((entry) => entry.id === tournament.id);
+    expect(saved?.status).toBe('completed');
+    expect(saved?.titles).toHaveLength(2);
+    expect(saved?.titles?.find((t) => t.playerId === 'a')?.label).toBe(
+      PLACEMENT_TITLE_BY_RANK[1],
+    );
+    expect(saved?.titles?.find((t) => t.playerId === 'b')?.label).toBe(
+      PLACEMENT_TITLE_LAST,
+    );
   });
 });

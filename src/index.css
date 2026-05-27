@@ -1345,9 +1345,19 @@ fieldset.match-setup__section > .match-setup__hint {
   color: var(--color-text-muted);
 }
 
+.champion-page__placements {
+  position: relative;
+  z-index: 1;
+  margin-top: var(--space-lg);
+}
+
 .champion-page__cta {
+  position: relative;
+  z-index: 1;
   margin-top: var(--space-lg);
   max-width: 20rem;
+  width: 100%;
+  align-self: center;
 }
 
 .champion-confetti {

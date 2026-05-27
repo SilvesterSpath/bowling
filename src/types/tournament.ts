@@ -1,4 +1,4 @@
-import type { PlayerId, Round } from './index';
+import type { PlayerId, PlayerTitle, Round } from './index';
 
 export type TournamentId = string;
 export type DuelId = string;
@@ -34,4 +34,5 @@ export interface Tournament {
   championId?: PlayerId;
   createdAt: string;
   completedAt?: string;
+  titles?: PlayerTitle[];
 }
