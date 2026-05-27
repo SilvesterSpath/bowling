@@ -2,9 +2,9 @@
 
 ## Phase
 
-**Phase 6 — Előzmények** (completed)
+**Phase 7 — Buli polish** (completed)
 
-Next: **Phase 7 — Polish** ([phase-7.md](phases/phase-7.md))
+Next: **Phase 8 — QA** ([phase-8.md](phases/phase-8.md))
 
 ## Status
 
@@ -12,50 +12,45 @@ Completed
 
 ## Goals
 
-- [x] List completed matches, newest first
-- [x] History card: name, date, winner(s), player/round count
-- [x] Detail: frozen leaderboard from match data
-- [x] Detail: stored `titles` (read-only, no recompute)
-- [x] Detail: compact round-by-round score table
-- [x] Empty state: „Még nincs befejezett meccs…”
-- [x] Invalid / non-completed match id → friendly error + back link
+- [x] First-visit storage hint (dismissible, `lengoteke:v1:hint-dismissed`)
+- [x] „Mentve” indicator after successful saves (2s toast)
+- [x] Confirm before meccs elvetése and meccs befejezése
+- [x] Abandon: delete match if no scores; else complete as „(megszakítva)”
+- [x] JSON backup export + restore on Home
+- [x] `focus-visible` and disabled button styles
 - [x] Hungarian UI throughout
 
 ## What was built
 
 | File | Purpose |
 |------|---------|
-| `src/utils/history.ts` | `getCompletedMatches`, `getMatchById`, `getWinnerLabel` |
-| `src/components/history/HistoryList.tsx` | Clickable match cards |
-| `src/components/history/HistoryDetail.tsx` | Read-only recap |
-| `src/pages/HistoryPage.tsx` | List + detail routes |
-| `src/index.css` | History list, detail, rounds table styles |
-
-## Routes
-
-| Path | View |
-|------|------|
-| `/history` | Completed matches list |
-| `/history/:matchId` | Match detail (read-only) |
+| `src/components/common/StorageHintBanner.tsx` | Data loss warning |
+| `src/components/common/SaveIndicator.tsx` | Brief „Mentve” toast |
+| `src/components/common/DataBackupPanel.tsx` | Export / import JSON |
+| `src/utils/match.ts` | `abandonActiveMatch` |
+| `src/utils/scoring.ts` | `hasAnyScoresEntered`, `areAllRoundsComplete` |
+| `src/hooks/useAppState.tsx` | `lastSavedAt` tracking |
+| `src/pages/HomePage.tsx` | Hint, backup, meccs elvetése |
+| `src/pages/MatchEndPage.tsx` | Finalize confirm dialog |
+| `src/index.css` | Polish styles |
 
 ## Browser verification
 
-**Dev server:** `http://localhost:5174/history`
+**Dev server:** `http://localhost:5174/`
 
 | Test | Result |
 |------|--------|
-| List | Shows „Teszt Kupa” with date, győztes, counts |
-| Detail | Végeredmény, Címek, Körök sections |
-| Stored titles | Anna + Béla Kupaőr titles from finalize |
-| Invalid id | Error message + vissza link |
-| Build | `npm run build` passes (60 modules) |
+| Home | Storage hint + Biztonsági mentés panel |
+| Dismiss hint | „Értem” hides banner |
+| Backup buttons | Mentés letöltése / visszaállítása present |
+| Build | `npm run build` passes (63 modules) |
 
 ## Notes
 
-- `phase-6.md` previously duplicated Phase 5 (titles) — corrected to Előzmények spec (titles done in Phase 5).
-- Delete match from history remains out of scope (low priority).
+- `phase-7.md` previously duplicated Phase 6 (history) — corrected to polish spec (history done in Phase 6).
+- Score entry on Játék page still not implemented (gap vs original master plan).
 
 ## History
 
-- 2026-05-27 — Phases 0–5: Through Meccs vége és címek.
-- 2026-05-27 — Phase 6: Előzmények list + detail, browser tests.
+- 2026-05-27 — Phases 0–6: Full flow through Előzmények.
+- 2026-05-27 — Phase 7: Party polish, backup, abandon, confirms.

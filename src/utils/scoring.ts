@@ -31,6 +31,19 @@ export function isRoundComplete(round: Round): boolean {
   return round.scores.every((entry) => entry.score !== null);
 }
 
+export function hasAnyScoresEntered(match: Match): boolean {
+  return match.rounds.some((round) =>
+    round.scores.some((entry) => entry.score !== null),
+  );
+}
+
+export function areAllRoundsComplete(match: Match): boolean {
+  return (
+    match.rounds.length === match.roundCount &&
+    match.rounds.every((round) => isRoundComplete(round))
+  );
+}
+
 export function getPlayerMisses(match: Match, playerId: PlayerId): number {
   return match.rounds.reduce((count, round) => {
     const entry = round.scores.find((score) => score.playerId === playerId);

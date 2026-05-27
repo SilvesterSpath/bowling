@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { SaveErrorBanner } from './components/common/SaveErrorBanner';
+import { SaveIndicator } from './components/common/SaveIndicator';
 import { HistoryPage } from './pages/HistoryPage';
 import { HomePage } from './pages/HomePage';
 import { LeaderboardPage } from './pages/LeaderboardPage';
@@ -12,6 +13,7 @@ export default function App() {
   return (
     <>
       <SaveErrorBanner />
+      <SaveIndicator />
       <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/players" element={<PlayersPage />} />

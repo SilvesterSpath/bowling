@@ -4,7 +4,8 @@ import {
   MAX_ROUND_COUNT,
   MIN_ROUND_COUNT,
 } from '../constants/scoring';
-import type { Match, PlayerId } from '../types';
+import type { AppState, Match, PlayerId } from '../types';
+import { hasAnyScoresEntered } from './scoring';
 import { defaultMatchName } from './format';
 import { createId } from './ids';
 import { createEmptyRounds } from './scoring';
@@ -55,4 +56,44 @@ export function pruneCompletedMatches(matches: Match[]): Match[] {
 
   const kept = completed.slice(completed.length - MAX_COMPLETED_MATCHES);
   return [...active, ...kept];
+}
+
+export function abandonActiveMatch(state: AppState): AppState {
+  if (!state.activeMatchId) {
+    return state;
+  }
+
+  const active = state.matches.find(
+    (match) => match.id === state.activeMatchId && match.status === 'active',
+  );
+
+  if (!active) {
+    return { ...state, activeMatchId: null };
+  }
+
+  if (!hasAnyScoresEntered(active)) {
+    return {
+      ...state,
+      matches: state.matches.filter((match) => match.id !== active.id),
+      activeMatchId: null,
+    };
+  }
+
+  const completedAt = new Date().toISOString();
+  const matches = state.matches.map((match) =>
+    match.id === active.id
+      ? {
+          ...match,
+          status: 'completed' as const,
+          completedAt,
+          name: `${match.name} (megszakítva)`,
+        }
+      : match,
+  );
+
+  return {
+    ...state,
+    matches: pruneCompletedMatches(matches),
+    activeMatchId: null,
+  };
 }

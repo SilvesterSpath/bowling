@@ -17,6 +17,7 @@ interface AppStateContextValue {
   update: (updater: AppStateUpdater) => SaveResult;
   replace: (next: AppState) => SaveResult;
   lastSaveError: SaveResult | null;
+  lastSavedAt: number | null;
 }
 
 const AppStateContext = createContext<AppStateContextValue | null>(null);
@@ -24,15 +25,21 @@ const AppStateContext = createContext<AppStateContextValue | null>(null);
 export function AppStateProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AppState>(() => loadState());
   const [lastSaveError, setLastSaveError] = useState<SaveResult | null>(null);
+  const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
+
+  const markSaved = useCallback(() => {
+    setLastSavedAt(Date.now());
+  }, []);
 
   const persist = useCallback((next: AppState) => {
     const result = saveState(next);
     setLastSaveError(result.ok ? null : result);
     if (result.ok) {
       setState(next);
+      markSaved();
     }
     return result;
-  }, []);
+  }, [markSaved]);
 
   const update = useCallback((updater: AppStateUpdater): SaveResult => {
     let saveResult: SaveResult = { ok: true };
@@ -45,8 +52,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       return prev;
     });
     setLastSaveError(saveResult.ok ? null : saveResult);
+    if (saveResult.ok) {
+      markSaved();
+    }
     return saveResult;
-  }, []);
+  }, [markSaved]);
 
   const replace = useCallback(
     (next: AppState) => persist(next),
@@ -59,8 +69,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       update,
       replace,
       lastSaveError,
+      lastSavedAt,
     }),
-    [state, update, replace, lastSaveError],
+    [state, update, replace, lastSaveError, lastSavedAt],
   );
 
   return (

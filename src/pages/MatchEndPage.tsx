@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { ConfirmDialog } from '../components/common/ConfirmDialog';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { AppShell } from '../components/layout/AppShell';
 import { PageHeader } from '../components/layout/PageHeader';
@@ -14,6 +15,7 @@ export function MatchEndPage() {
   const navigate = useNavigate();
   const activeMatch = useActiveMatch();
   const { state, update } = useAppState();
+  const [finalizeOpen, setFinalizeOpen] = useState(false);
 
   const matchPlayers = useMemo(() => {
     if (!activeMatch) {
@@ -68,6 +70,7 @@ export function MatchEndPage() {
     });
 
     if (result.ok) {
+      setFinalizeOpen(false);
       navigate('/');
     }
   };
@@ -100,10 +103,19 @@ export function MatchEndPage() {
       <button
         type="button"
         className="btn btn--primary btn--block"
-        onClick={handleFinalize}
+        onClick={() => setFinalizeOpen(true)}
       >
         Befejezés — mentés az előzményekbe
       </button>
+
+      <ConfirmDialog
+        open={finalizeOpen}
+        title="Meccs befejezése"
+        message="A meccs az előzményekbe kerül, és nem lesz szerkeszthető. Folytatod?"
+        confirmLabel="Befejezés"
+        onConfirm={handleFinalize}
+        onCancel={() => setFinalizeOpen(false)}
+      />
     </AppShell>
   );
 }
