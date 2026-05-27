@@ -7,7 +7,10 @@ import { PageHeader } from '../components/layout/PageHeader';
 import { useActiveMatch } from '../hooks/useActiveMatch';
 import { useAppState } from '../hooks/useAppState';
 import { sortPlayersByName } from '../utils/players';
-import { computeRoundTitles } from '../utils/roundTitles';
+import {
+  computeRoundTitles,
+  toRoundTitleDisplayMap,
+} from '../utils/roundTitles';
 import {
   areAllRoundsComplete,
   canAdvanceFromRound,
@@ -36,18 +39,15 @@ export function PlayMatchPage() {
 
   const roundTitlesByPlayerId = useMemo(() => {
     if (!matchFromState) {
-      return new Map<string, string>();
+      return new Map();
     }
     const viewedRound = getRoundByIndex(matchFromState, roundIndex);
     if (!viewedRound) {
-      return new Map<string, string>();
+      return new Map();
     }
-    const titles = computeRoundTitles(
-      viewedRound,
-      roundIndex,
-      matchFromState.playerIds,
+    return toRoundTitleDisplayMap(
+      computeRoundTitles(viewedRound, roundIndex, matchFromState.playerIds),
     );
-    return new Map(titles.map((title) => [title.playerId, title.label]));
   }, [matchFromState, roundIndex]);
 
   if (!activeMatch || !matchFromState) {

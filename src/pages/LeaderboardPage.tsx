@@ -8,6 +8,7 @@ import { useAppState } from '../hooks/useAppState';
 import {
   computeRoundTitles,
   getLatestCompleteRound,
+  toRoundTitleDisplayMap,
 } from '../utils/roundTitles';
 import { getRankings } from '../utils/scoring';
 
@@ -17,18 +18,15 @@ export function LeaderboardPage() {
 
   const roundTitlesByPlayerId = useMemo(() => {
     if (!activeMatch) {
-      return new Map<string, string>();
+      return new Map();
     }
     const round = getLatestCompleteRound(activeMatch);
     if (!round) {
-      return new Map<string, string>();
+      return new Map();
     }
-    const titles = computeRoundTitles(
-      round,
-      round.index,
-      activeMatch.playerIds,
+    return toRoundTitleDisplayMap(
+      computeRoundTitles(round, round.index, activeMatch.playerIds),
     );
-    return new Map(titles.map((title) => [title.playerId, title.label]));
   }, [activeMatch]);
 
   if (!activeMatch) {

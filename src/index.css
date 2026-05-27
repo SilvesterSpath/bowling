@@ -906,8 +906,22 @@ fieldset.match-setup__section > .match-setup__hint {
   white-space: nowrap;
 }
 
+.player-line__subtitle {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .app-shell--compact .player-line__title {
   font-size: 0.75rem;
+}
+
+.app-shell--compact .player-line__subtitle {
+  font-size: 0.68rem;
 }
 
 .score-grid__input {

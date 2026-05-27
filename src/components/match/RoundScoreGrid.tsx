@@ -1,12 +1,11 @@
-import type { Player } from '../../types';
-import type { Round } from '../../types';
+import type { Player, Round, RoundTitleDisplay } from '../../types';
 import { displayName } from '../../utils/format';
 import { PlayerNameWithTitle } from './PlayerNameWithTitle';
 
 interface RoundScoreGridProps {
   round: Round;
   players: Player[];
-  titlesByPlayerId: Map<string, string>;
+  titlesByPlayerId: Map<string, RoundTitleDisplay>;
   onScoreChange: (playerId: string, value: string) => void;
 }
 
@@ -32,7 +31,8 @@ export function RoundScoreGrid({
             <label className="score-grid__label" htmlFor={`score-${player.id}`}>
               <PlayerNameWithTitle
                 name={displayName(player)}
-                title={titlesByPlayerId.get(player.id)}
+                title={titlesByPlayerId.get(player.id)?.funny}
+                subtitle={titlesByPlayerId.get(player.id)?.descriptive}
               />
             </label>
             <input

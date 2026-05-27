@@ -22,7 +22,16 @@ export type MatchStatus = 'active' | 'completed';
 export interface PlayerTitle {
   playerId: PlayerId;
   key: string;
+  /** Primary line (e.g. funny round nickname). */
   label: string;
+  /** Secondary line (e.g. score-gap description); round titles only. */
+  subtitle?: string;
+}
+
+/** Funny + descriptive lines shown beside a player name during a round. */
+export interface RoundTitleDisplay {
+  funny: string;
+  descriptive: string;
 }
 
 export interface Match {

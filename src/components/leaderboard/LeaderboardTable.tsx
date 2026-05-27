@@ -1,4 +1,4 @@
-import type { Player } from '../../types';
+import type { Player, RoundTitleDisplay } from '../../types';
 import type { RankingEntry } from '../../utils/scoring';
 import { displayName } from '../../utils/format';
 import { PlayerNameWithTitle } from '../match/PlayerNameWithTitle';
@@ -6,7 +6,7 @@ import { PlayerNameWithTitle } from '../match/PlayerNameWithTitle';
 interface LeaderboardTableProps {
   rankings: RankingEntry[];
   playersById: Map<string, Player>;
-  titlesByPlayerId?: Map<string, string>;
+  titlesByPlayerId?: Map<string, RoundTitleDisplay>;
 }
 
 export function LeaderboardTable({
@@ -45,7 +45,8 @@ export function LeaderboardTable({
                 {player ? (
                   <PlayerNameWithTitle
                     name={displayName(player)}
-                    title={titlesByPlayerId?.get(entry.playerId)}
+                    title={titlesByPlayerId?.get(entry.playerId)?.funny}
+                    subtitle={titlesByPlayerId?.get(entry.playerId)?.descriptive}
                   />
                 ) : (
                   '—'

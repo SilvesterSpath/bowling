@@ -1,8 +1,15 @@
 import {
-  getRoundTitleLabel,
+  getRoundFunnyLabel,
+  getRoundGapLabel,
   type RoundTitleKey,
 } from '../constants/roundTitles';
-import type { Match, PlayerId, PlayerTitle, Round } from '../types';
+import type {
+  Match,
+  PlayerId,
+  PlayerTitle,
+  Round,
+  RoundTitleDisplay,
+} from '../types';
 import { isRoundComplete } from './scoring';
 
 interface RoundPlayerStat {
@@ -23,46 +30,115 @@ function buildRoundStats(
   });
 }
 
-function pickOne(
-  stats: RoundPlayerStat[],
-  assigned: Set<PlayerId>,
+function sortByPlayerOrder(
+  group: RoundPlayerStat[],
   playerIds: PlayerId[],
-  predicate: (stat: RoundPlayerStat) => boolean,
-  compare: (a: RoundPlayerStat, b: RoundPlayerStat) => number,
-): PlayerId | null {
-  const candidates = stats.filter(
-    (stat) => !assigned.has(stat.playerId) && predicate(stat),
-  );
-  if (candidates.length === 0) {
-    return null;
-  }
-  const sorted = [...candidates].sort(compare);
-  const best = sorted[0];
-  const tied = sorted.filter((stat) => compare(stat, best) === 0);
-  tied.sort(
+): RoundPlayerStat[] {
+  return [...group].sort(
     (a, b) =>
       playerIds.indexOf(a.playerId) - playerIds.indexOf(b.playerId),
   );
-  return tied[0]?.playerId ?? null;
 }
 
-function assign(
-  titles: PlayerTitle[],
-  assigned: Set<PlayerId>,
-  playerId: PlayerId,
-  key: RoundTitleKey,
-  roundIndex: number,
-  playerOffset = 0,
-): void {
-  if (assigned.has(playerId)) {
-    return;
+function secondHighestScore(stats: RoundPlayerStat[], roundMax: number): number {
+  const below = stats
+    .map((stat) => stat.score)
+    .filter((score) => score < roundMax);
+  return below.length > 0 ? Math.max(...below) : roundMax;
+}
+
+function secondLowestScore(stats: RoundPlayerStat[], roundMin: number): number {
+  const above = stats
+    .map((stat) => stat.score)
+    .filter((score) => score > roundMin);
+  return above.length > 0 ? Math.min(...above) : roundMin;
+}
+
+function classifyRoundPlayer(
+  stat: RoundPlayerStat,
+  stats: RoundPlayerStat[],
+  roundMax: number,
+  roundMin: number,
+): RoundTitleKey {
+  const { score } = stat;
+  if (score === 10) {
+    return 'perfect';
   }
-  assigned.add(playerId);
-  titles.push({
-    playerId,
-    key,
-    label: getRoundTitleLabel(key, roundIndex, playerOffset),
-  });
+  if (score === 0) {
+    return 'gutter';
+  }
+
+  const spread = roundMax - roundMin;
+  const gapFromMax = roundMax - score;
+  const aboveMin = score - roundMin;
+
+  if (spread === 0) {
+    return 'all_equal';
+  }
+
+  const tiedAtTop = stats.filter((s) => s.score === roundMax).length > 1;
+  const tiedAtBottom = stats.filter((s) => s.score === roundMin).length > 1;
+  const leadMargin = roundMax - secondHighestScore(stats, roundMax);
+  const trailMargin = secondLowestScore(stats, roundMin) - roundMin;
+
+  if (gapFromMax === 0) {
+    if (tiedAtTop) {
+      return 'lead_tied';
+    }
+    if (leadMargin >= 3) {
+      return 'lead_dominant';
+    }
+    if (leadMargin === 2) {
+      return 'lead_comfort';
+    }
+    return 'lead_narrow';
+  }
+
+  if (gapFromMax === 1) {
+    return 'one_behind';
+  }
+
+  if (gapFromMax === 2) {
+    return 'two_behind';
+  }
+
+  if (aboveMin === 0) {
+    if (tiedAtBottom) {
+      return 'last_tied';
+    }
+    if (trailMargin >= 2) {
+      return 'last_clear';
+    }
+    if (trailMargin === 1) {
+      return 'last_narrow';
+    }
+    return 'last_solo';
+  }
+
+  if (gapFromMax >= 4 || spread >= 6) {
+    return 'far_behind';
+  }
+
+  if (gapFromMax === 3) {
+    return 'chasing';
+  }
+
+  return 'mid_pack';
+}
+
+function variantIndexForTie(
+  stat: RoundPlayerStat,
+  stats: RoundPlayerStat[],
+  playerIds: PlayerId[],
+): number {
+  const sameScore = sortByPlayerOrder(
+    stats.filter((s) => s.score === stat.score),
+    playerIds,
+  );
+  return Math.max(
+    0,
+    sameScore.findIndex((s) => s.playerId === stat.playerId),
+  );
 }
 
 /** Latest round (highest index) that has every score filled, or null. */
@@ -77,8 +153,8 @@ export function getLatestCompleteRound(match: Match): Round | null {
 }
 
 /**
- * Funny titles for one completed round, based only on that round's scores.
- * Returns [] if the round is not fully scored.
+ * Round titles: whimsical nickname + score-gap description.
+ * Equal scores get different variant lines for each line.
  */
 export function computeRoundTitles(
   round: Round,
@@ -93,53 +169,29 @@ export function computeRoundTitles(
   const scores = stats.map((stat) => stat.score);
   const roundMax = Math.max(...scores);
   const roundMin = Math.min(...scores);
-  const playerCount = playerIds.length;
 
-  const assigned = new Set<PlayerId>();
-  const titles: PlayerTitle[] = [];
+  return sortByPlayerOrder(stats, playerIds).map((stat) => {
+    const key = classifyRoundPlayer(stat, stats, roundMax, roundMin);
+    const offset = variantIndexForTie(stat, stats, playerIds);
+    return {
+      playerId: stat.playerId,
+      key,
+      label: getRoundFunnyLabel(key, roundIndex, offset),
+      subtitle: getRoundGapLabel(key, roundIndex, offset),
+    };
+  });
+}
 
-  for (const stat of stats) {
-    if (stat.score === 10) {
-      assign(titles, assigned, stat.playerId, 'perfect', roundIndex);
-    }
-  }
-
-  for (const stat of stats) {
-    if (stat.score === 0) {
-      assign(titles, assigned, stat.playerId, 'gutter', roundIndex);
-    }
-  }
-
-  const heroId = pickOne(
-    stats,
-    assigned,
-    playerIds,
-    (stat) => stat.score === roundMax,
-    (a, b) => b.score - a.score,
+export function toRoundTitleDisplayMap(
+  titles: PlayerTitle[],
+): Map<string, RoundTitleDisplay> {
+  return new Map(
+    titles.map((title) => [
+      title.playerId,
+      {
+        funny: title.label,
+        descriptive: title.subtitle ?? '',
+      },
+    ]),
   );
-  if (heroId) {
-    assign(titles, assigned, heroId, 'round_hero', roundIndex);
-  }
-
-  if (playerCount > 1) {
-    const strugglerId = pickOne(
-      stats,
-      assigned,
-      playerIds,
-      (stat) => stat.score === roundMin,
-      (a, b) => a.score - b.score,
-    );
-    if (strugglerId) {
-      assign(titles, assigned, strugglerId, 'round_struggler', roundIndex);
-    }
-  }
-
-  for (const playerId of playerIds) {
-    if (!assigned.has(playerId)) {
-      const offset = playerIds.indexOf(playerId);
-      assign(titles, assigned, playerId, 'filler', roundIndex, offset);
-    }
-  }
-
-  return titles;
 }

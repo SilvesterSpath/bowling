@@ -1,7 +1,10 @@
 import type { Match, Player } from '../../types';
 import { displayName } from '../../utils/format';
 import { sortPlayersByName } from '../../utils/players';
-import { computeRoundTitles } from '../../utils/roundTitles';
+import {
+  computeRoundTitles,
+  toRoundTitleDisplayMap,
+} from '../../utils/roundTitles';
 import { isRoundComplete } from '../../utils/scoring';
 import { PlayerNameWithTitle } from './PlayerNameWithTitle';
 
@@ -23,13 +26,8 @@ export function RoundTitlesRecap({ match, players }: RoundTitlesRecapProps) {
       <summary className="round-titles-recap__summary">Körönkénti címek</summary>
       <div className="round-titles-recap__rounds">
         {completeRounds.map((round, index) => {
-          const titles = computeRoundTitles(
-            round,
-            round.index,
-            match.playerIds,
-          );
-          const titlesByPlayerId = new Map(
-            titles.map((title) => [title.playerId, title.label]),
+          const titlesByPlayerId = toRoundTitleDisplayMap(
+            computeRoundTitles(round, round.index, match.playerIds),
           );
 
           return (
@@ -46,7 +44,8 @@ export function RoundTitlesRecap({ match, players }: RoundTitlesRecapProps) {
                   <li key={player.id} className="round-titles-recap__item">
                     <PlayerNameWithTitle
                       name={displayName(player)}
-                      title={titlesByPlayerId.get(player.id)}
+                      title={titlesByPlayerId.get(player.id)?.funny}
+                      subtitle={titlesByPlayerId.get(player.id)?.descriptive}
                     />
                   </li>
                 ))}
