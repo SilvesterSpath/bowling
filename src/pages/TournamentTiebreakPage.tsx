@@ -5,6 +5,7 @@ import { AppShell } from '../components/layout/AppShell';
 import { PageHeader } from '../components/layout/PageHeader';
 import { useActiveTournament } from '../hooks/useActiveTournament';
 import { useAppState } from '../hooks/useAppState';
+import { useRoundTitleDisplayMap } from '../hooks/useRoundTitleDisplayMap';
 import type { TournamentDuel } from '../types';
 import { displayName } from '../utils/format';
 import { sortPlayersByName } from '../utils/players';
@@ -45,6 +46,27 @@ export function TournamentTiebreakPage() {
     [tournament],
   );
 
+  const tieBreakEntry = useMemo(
+    () => (duel ? getIncompleteTieBreakRound(duel) : null),
+    [duel],
+  );
+
+  const duelPlayerIds = useMemo(
+    () => (duel ? [duel.playerAId, duel.playerBId] : []),
+    [duel],
+  );
+
+  const tieBreakTitleRoundIndex =
+    tournament && tieBreakEntry
+      ? tournament.roundsPerDuel + tieBreakEntry.index + 1
+      : 1;
+
+  const roundTitlesByPlayerId = useRoundTitleDisplayMap(
+    tieBreakEntry?.round,
+    tieBreakTitleRoundIndex,
+    duelPlayerIds,
+  );
+
   if (!tournament || !duel) {
     return <Navigate to='/tournament' replace />;
   }
@@ -61,7 +83,6 @@ export function TournamentTiebreakPage() {
     return <Navigate to='/tournament/duel' replace />;
   }
 
-  const tieBreakEntry = getIncompleteTieBreakRound(duel);
   if (!tieBreakEntry) {
     return <Navigate to='/tournament/duel' replace />;
   }
@@ -149,7 +170,7 @@ export function TournamentTiebreakPage() {
       <RoundScoreGrid
         round={tieBreakRound}
         players={players}
-        titlesByPlayerId={new Map()}
+        titlesByPlayerId={roundTitlesByPlayerId}
         onScoreChange={handleScoreChange}
       />
 

@@ -6,11 +6,8 @@ import { AppShell } from '../components/layout/AppShell';
 import { PageHeader } from '../components/layout/PageHeader';
 import { useActiveMatch } from '../hooks/useActiveMatch';
 import { useAppState } from '../hooks/useAppState';
+import { useRoundTitleDisplayMap } from '../hooks/useRoundTitleDisplayMap';
 import { sortPlayersByName } from '../utils/players';
-import {
-  computeRoundTitles,
-  toRoundTitleDisplayMap,
-} from '../utils/roundTitles';
 import {
   areAllRoundsComplete,
   canAdvanceFromRound,
@@ -37,18 +34,14 @@ export function PlayMatchPage() {
     );
   }, [activeMatch, state.matches]);
 
-  const roundTitlesByPlayerId = useMemo(() => {
-    if (!matchFromState) {
-      return new Map();
-    }
-    const viewedRound = getRoundByIndex(matchFromState, roundIndex);
-    if (!viewedRound) {
-      return new Map();
-    }
-    return toRoundTitleDisplayMap(
-      computeRoundTitles(viewedRound, roundIndex, matchFromState.playerIds),
-    );
-  }, [matchFromState, roundIndex]);
+  const viewedRound = matchFromState
+    ? getRoundByIndex(matchFromState, roundIndex)
+    : undefined;
+  const roundTitlesByPlayerId = useRoundTitleDisplayMap(
+    viewedRound,
+    roundIndex,
+    matchFromState?.playerIds ?? [],
+  );
 
   if (!activeMatch || !matchFromState) {
     return <Navigate to='/' replace />;

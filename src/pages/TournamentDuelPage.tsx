@@ -6,6 +6,7 @@ import { AppShell } from '../components/layout/AppShell';
 import { PageHeader } from '../components/layout/PageHeader';
 import { useActiveTournament } from '../hooks/useActiveTournament';
 import { useAppState } from '../hooks/useAppState';
+import { useRoundTitleDisplayMap } from '../hooks/useRoundTitleDisplayMap';
 import type { TournamentDuel } from '../types';
 import { displayName } from '../utils/format';
 import { sortPlayersByName } from '../utils/players';
@@ -48,8 +49,24 @@ export function TournamentDuelPage() {
     [tournament],
   );
 
-  const [roundIndex, setRoundIndex] = useState(() =>
-    duel ? getDuelCurrentRoundIndex(duel) : 1,
+  const [roundIndex, setRoundIndex] = useState(1);
+  const [syncedDuelId, setSyncedDuelId] = useState<string | undefined>(undefined);
+
+  if (duel && duel.id !== syncedDuelId) {
+    setSyncedDuelId(duel.id);
+    setRoundIndex(getDuelCurrentRoundIndex(duel));
+  }
+
+  const duelPlayerIds = useMemo(
+    () => (duel ? [duel.playerAId, duel.playerBId] : []),
+    [duel],
+  );
+
+  const round = duel ? getDuelRoundByIndex(duel, roundIndex) : undefined;
+  const roundTitlesByPlayerId = useRoundTitleDisplayMap(
+    round,
+    roundIndex,
+    duelPlayerIds,
   );
 
   if (!tournament || !duel) {
@@ -70,7 +87,6 @@ export function TournamentDuelPage() {
     ),
   );
 
-  const round = getDuelRoundByIndex(duel, roundIndex);
   const roundComplete = canAdvanceFromDuelRound(duel, roundIndex);
   const allMainComplete = isDuelMainComplete(duel, tournament.roundsPerDuel);
   const totals = getDuelMainTotals(duel);
@@ -162,7 +178,7 @@ export function TournamentDuelPage() {
       <RoundScoreGrid
         round={round}
         players={players}
-        titlesByPlayerId={new Map()}
+        titlesByPlayerId={roundTitlesByPlayerId}
         onScoreChange={handleScoreChange}
       />
 
