@@ -39,6 +39,9 @@ export function PlayMatchPage() {
         <Link to="/match/leaderboard" className="btn btn--primary btn--block">
           Eredménytábla
         </Link>
+        <Link to="/match/end" className="btn btn--secondary btn--block">
+          Meccs vége
+        </Link>
         <Link to="/" className="btn btn--secondary btn--block">
           Főoldal
         </Link>

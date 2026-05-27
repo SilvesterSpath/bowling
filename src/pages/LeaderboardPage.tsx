@@ -26,6 +26,9 @@ export function LeaderboardPage() {
       <PageHeader title="Eredménytábla" backTo="/match/play" backLabel="Játék" />
       <p className="leaderboard-page__match">{activeMatch.name}</p>
       <LeaderboardTable rankings={rankings} playersById={playersById} />
+      <Link to="/match/end" className="btn btn--primary btn--block">
+        Meccs vége
+      </Link>
       <Link to="/match/play" className="btn btn--secondary btn--block">
         Vissza a játékhoz
       </Link>

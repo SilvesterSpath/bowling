@@ -38,3 +38,21 @@ export function createMatch(params: {
 export function getDefaultRoundCount(): number {
   return DEFAULT_ROUND_COUNT;
 }
+
+export function pruneCompletedMatches(matches: Match[]): Match[] {
+  const active = matches.filter((match) => match.status === 'active');
+  const completed = matches
+    .filter((match) => match.status === 'completed')
+    .sort(
+      (a, b) =>
+        new Date(a.completedAt ?? a.createdAt).getTime() -
+        new Date(b.completedAt ?? b.createdAt).getTime(),
+    );
+
+  if (completed.length <= MAX_COMPLETED_MATCHES) {
+    return [...active, ...completed];
+  }
+
+  const kept = completed.slice(completed.length - MAX_COMPLETED_MATCHES);
+  return [...active, ...kept];
+}

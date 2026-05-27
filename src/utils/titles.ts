@@ -91,7 +91,6 @@ function pickOne(
   }
   const sorted = [...candidates].sort(compare);
   const best = sorted[0];
-  const order = match.playerIds.indexOf(best.playerId);
   const tied = sorted.filter((stat) => compare(stat, best) === 0);
   tied.sort(
     (a, b) => match.playerIds.indexOf(a.playerId) - match.playerIds.indexOf(b.playerId),
@@ -156,14 +155,11 @@ export function computeTitles(match: Match, players: Player[]): PlayerTitle[] {
     stats,
     assigned,
     match,
-    () => true,
-    (a, b) => b.zeros - a.zeros || a.zeros - b.zeros,
+    (stat) => stat.zeros > 0,
+    (a, b) => b.zeros - a.zeros,
   );
   if (gutterWinner) {
-    const maxZeros = stats.find((s) => s.playerId === gutterWinner)?.zeros ?? 0;
-    if (maxZeros > 0) {
-      assign(gutterWinner, 'gutter_king');
-    }
+    assign(gutterWinner, 'gutter_king');
   }
 
   const steadyWinner = pickOne(

@@ -2,9 +2,9 @@
 
 ## Phase
 
-**Phase 4 — Eredménytábla** (completed)
+**Phase 5 — Meccs vége és címek** (completed)
 
-Next: **Phase 5 — Meccs vége / címek** ([phase-5.md](phases/phase-5.md))
+Next: **Phase 6 — Előzmények** ([phase-6.md](phases/phase-6.md))
 
 ## Status
 
@@ -12,50 +12,58 @@ Completed
 
 ## Goals
 
-- [x] Calculate total score per player (`getPlayerTotal`)
-- [x] Sort by score descending with competition ranking (`getRankings`)
-- [x] Handle ties (shared rank 1, 1, 3…)
-- [x] Show rank, player name, total, nullák (zero-score count)
-- [x] Highlight first place row(s)
-- [x] Live data from active match via `useActiveMatch`
-- [x] Hungarian column labels
-- [x] Guard: redirect home if no active match
-- [x] Link from Játék page to Eredménytábla
+- [x] `computeTitles()` with priority rules (champion → default)
+- [x] Meccs vége page: végeredmény + címek
+- [x] `TitleCard` component
+- [x] **Befejezés** — `status: completed`, `completedAt`, persist `titles`
+- [x] Clear `activeMatchId` on finalize
+- [x] Prune completed matches to max 50 (`pruneCompletedMatches`)
+- [x] Links to `/match/end` from Játék and Eredménytábla
+- [x] Hungarian UI throughout
 
 ## What was built
 
 | File | Purpose |
 |------|---------|
-| `src/utils/scoring.ts` | `getRankings`, `getPlayerMisses`, `RankingEntry` |
-| `src/components/leaderboard/LeaderboardTable.tsx` | Table UI + leader highlight |
-| `src/pages/LeaderboardPage.tsx` | Active match leaderboard |
-| `src/pages/PlayMatchPage.tsx` | Eredménytábla button |
-| `src/index.css` | Leaderboard table styles |
+| `src/utils/titles.ts` | Stats + priority title assignment |
+| `src/utils/match.ts` | `pruneCompletedMatches` |
+| `src/components/leaderboard/TitleCard.tsx` | Player + title display |
+| `src/pages/MatchEndPage.tsx` | Leaderboard, titles, finalize |
+| `src/pages/LeaderboardPage.tsx` | Meccs vége link |
+| `src/pages/PlayMatchPage.tsx` | Meccs vége link |
 
-## Ranking rules
+## Title rules (priority)
 
-- **Összesen:** sum of entered round scores (null rounds count as 0).
-- **Nullák:** count of rounds where score === 0.
-- **Helyezés:** competition ranking; tied totals share the same rank.
+1. champion — rank 1  
+2. last_place — last rank (≥2 players)  
+3. high_roller — max round === global max  
+4. gutter_king — most nullák (zeros)  
+5. steady_eddie — lowest std dev (≥2 scored rounds)  
+6. roller_coaster — highest max−min spread  
+7. clutch_finisher — best score in final round  
+8. slow_starter — biggest 2nd-half improvement  
+9. party_animal — middle rank  
+10. default — fallback  
+
+Each player receives exactly one title.
 
 ## Browser verification
 
-**Dev server:** `http://localhost:5174/match/leaderboard`
+**Dev server:** `http://localhost:5174/`
 
 | Test | Result |
 |------|--------|
-| With scores Anna 15, Béla 13 | 1. Anna 15, 2. Béla 13 |
-| Tie both 15 | Both show rank **1.** (leader highlight) |
-| No active match | Redirect to `/` |
-| Match name shown | „Teszt Kupa” |
-| Build | `npm run build` passes (55 modules) |
+| `/match/end` with tied leaders | Both show „Kupaőr — A Szilveszter Kupája” |
+| Befejezés | Redirect home; no Folytatás link |
+| localStorage | `activeMatchId: null`, 1 completed match, 2 titles saved |
+| Build | `npm run build` passes (58 modules) |
 
 ## Notes
 
-- Score entry on Játék page still pending (separate phase); leaderboard reads whatever is in `rounds`.
-- `phase-4.md` header typo („Phase 5”) corrected to Phase 4.
+- `phase-5.md` previously duplicated Phase 4 text — corrected to Meccs vége spec.
+- History list UI still Phase 6.
 
 ## History
 
-- 2026-05-27 — Phase 0–3: Scaffold through Új meccs.
-- 2026-05-27 — Phase 4: Eredménytábla, ties, nullák, browser tests.
+- 2026-05-27 — Phases 0–4: Scaffold through Eredménytábla.
+- 2026-05-27 — Phase 5: Titles, Meccs vége, finalize + prune, browser tests.
