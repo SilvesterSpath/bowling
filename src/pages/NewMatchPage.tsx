@@ -4,7 +4,7 @@ export function NewMatchPage() {
   return (
     <PlaceholderPage
       title="Új meccs"
-      description="Meccs indítása, játékosok kiválasztása — Phase 2-ben érkezik."
+      description="Meccs indítása, játékosok kiválasztása — Phase 3-ban érkezik."
       backTo="/"
     />
   );

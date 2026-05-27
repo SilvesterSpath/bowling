@@ -1,3 +1,9 @@
+# Phase 2 — Játékosok
+
+## Status
+
+Completed
+
 Implement Phase 2 only.
 
 Build the Játékosok page.
