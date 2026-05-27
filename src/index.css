@@ -1266,5 +1266,155 @@ fieldset.match-setup__section > .match-setup__hint {
   margin: 0 0 var(--space-md);
   text-align: center;
   font-size: 0.95rem;
-  color: var(--color-muted);
+  color: var(--color-text-muted);
+}
+
+/* —— Champion celebration —— */
+.champion-page {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg) 0 var(--space-xl);
+  text-align: center;
+}
+
+.champion-page__eyebrow {
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.champion-page__title {
+  font-size: clamp(1.75rem, 8vw, 2.25rem);
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--color-gold);
+  text-shadow: 0 0 24px rgba(212, 175, 55, 0.45);
+}
+
+.champion-page__name {
+  font-size: clamp(1.5rem, 6vw, 2rem);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.champion-page__tournament {
+  font-size: 1rem;
+  color: var(--color-text-muted);
+}
+
+.champion-page__cta {
+  margin-top: var(--space-lg);
+  max-width: 20rem;
+}
+
+.champion-confetti {
+  position: fixed;
+  inset: 0;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 2;
+}
+
+.champion-confetti__piece {
+  position: absolute;
+  top: -12px;
+  width: 8px;
+  height: 12px;
+  border-radius: 1px;
+  opacity: 0.9;
+  animation: confetti-fall linear forwards;
+  transform: rotate(var(--confetti-rotate, 0deg));
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh) rotate(720deg);
+    opacity: 0.2;
+  }
+}
+
+.tournament-trophy {
+  position: relative;
+  width: 5.5rem;
+  height: 6.5rem;
+  margin: var(--space-md) 0;
+}
+
+.tournament-trophy__glow {
+  position: absolute;
+  inset: -20%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(212, 175, 55, 0.45) 0%,
+    transparent 70%
+  );
+  animation: trophy-glow 2.5s ease-in-out infinite;
+}
+
+@keyframes trophy-glow {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+.tournament-trophy__cup {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.tournament-trophy__rim {
+  width: 4.5rem;
+  height: 0.65rem;
+  background: linear-gradient(
+    180deg,
+    var(--color-gold) 0%,
+    var(--color-gold-dim) 100%
+  );
+  border-radius: 4px 4px 0 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.tournament-trophy__body {
+  width: 3.25rem;
+  height: 3.25rem;
+  margin-top: -2px;
+  background: linear-gradient(
+    135deg,
+    var(--color-gold) 0%,
+    #f0d878 40%,
+    var(--color-gold-dim) 100%
+  );
+  clip-path: polygon(8% 0%, 92% 0%, 78% 100%, 22% 100%);
+  box-shadow: inset 0 -4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.tournament-trophy__base {
+  width: 2.5rem;
+  height: 0.85rem;
+  margin-top: 0.35rem;
+  background: var(--color-gold-dim);
+  border-radius: 0 0 6px 6px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }

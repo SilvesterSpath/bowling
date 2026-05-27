@@ -662,3 +662,27 @@ export function winnerIdFromOutcome(
 ): PlayerId {
   return outcome === 'a' ? duel.playerAId : duel.playerBId;
 }
+
+export function finalizeActiveTournament(state: AppState): AppState {
+  const activeId = state.activeTournamentId;
+  if (!activeId) {
+    return state;
+  }
+
+  const completedAt = new Date().toISOString();
+  const tournaments = state.tournaments.map((tournament) =>
+    tournament.id === activeId
+      ? {
+          ...tournament,
+          status: 'completed' as const,
+          completedAt,
+        }
+      : tournament,
+  );
+
+  return {
+    ...state,
+    tournaments: pruneCompletedTournaments(tournaments),
+    activeTournamentId: null,
+  };
+}

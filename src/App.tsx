@@ -11,6 +11,7 @@ import { PlayersPage } from './pages/PlayersPage';
 import { TournamentDuelPage } from './pages/TournamentDuelPage';
 import { TournamentHubPage } from './pages/TournamentHubPage';
 import { TournamentNewPage } from './pages/TournamentNewPage';
+import { TournamentChampionPage } from './pages/TournamentChampionPage';
 import { TournamentTiebreakPage } from './pages/TournamentTiebreakPage';
 
 export default function App() {
@@ -31,6 +32,7 @@ export default function App() {
       <Route path="/tournament" element={<TournamentHubPage />} />
       <Route path="/tournament/duel" element={<TournamentDuelPage />} />
       <Route path="/tournament/duel/tiebreak" element={<TournamentTiebreakPage />} />
+      <Route path="/tournament/champion" element={<TournamentChampionPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>

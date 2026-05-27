@@ -45,12 +45,15 @@ export function TournamentHubPage() {
     return <Navigate to="/" replace />;
   }
 
+  if (activeTournament.championId) {
+    return <Navigate to="/tournament/champion" replace />;
+  }
+
   const progress = getTournamentProgress(activeTournament);
   const currentRound = getCurrentBracketRound(activeTournament);
   const roundComplete =
     currentRound !== undefined && isBracketRoundComplete(currentRound);
   const currentDuel = getCurrentDuel(activeTournament);
-  const championId = activeTournament.championId;
 
   const abandonMessage = hasAnyTournamentScoresEntered(activeTournament)
     ? `A(z) „${activeTournament.name}” bajnokság elvetése törli az eddigi párharcokat. Folytatod?`
@@ -67,7 +70,7 @@ export function TournamentHubPage() {
   };
 
   const handleStartDuel = () => {
-    if (!currentDuel || championId) {
+    if (!currentDuel) {
       return;
     }
     if (currentDuel.status === 'active') {
@@ -97,7 +100,7 @@ export function TournamentHubPage() {
       return;
     }
     if (outcome.type === 'champion') {
-      navigate('/tournament');
+      navigate('/tournament/champion');
     }
   };
 
@@ -119,16 +122,6 @@ export function TournamentHubPage() {
   };
 
   const primaryCta = () => {
-    if (championId) {
-      const champion = playersById.get(championId);
-      return (
-        <p className="tournament-hub__champion" role="status">
-          Győztes: {champion ? displayName(champion) : '—'}. Az ünneplő
-          képernyő a következő lépésben érkezik.
-        </p>
-      );
-    }
-
     if (roundComplete && progress.remainingDuelCount === 0) {
       return (
         <button
