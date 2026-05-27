@@ -8,6 +8,9 @@ import { MatchEndPage } from './pages/MatchEndPage';
 import { NewMatchPage } from './pages/NewMatchPage';
 import { PlayMatchPage } from './pages/PlayMatchPage';
 import { PlayersPage } from './pages/PlayersPage';
+import { TournamentHubPage } from './pages/TournamentHubPage';
+import { TournamentNewPage } from './pages/TournamentNewPage';
+import { PlaceholderPage } from './components/common/PlaceholderPage';
 
 export default function App() {
   return (
@@ -23,6 +26,19 @@ export default function App() {
       <Route path="/match/end" element={<MatchEndPage />} />
       <Route path="/history" element={<HistoryPage />} />
       <Route path="/history/:matchId" element={<HistoryPage />} />
+      <Route path="/tournament/new" element={<TournamentNewPage />} />
+      <Route path="/tournament" element={<TournamentHubPage />} />
+      <Route
+        path="/tournament/duel"
+        element={
+          <PlaceholderPage
+            title="Párharc"
+            description="A párharc pontszámítása a következő lépésben készül el."
+            backTo="/tournament"
+            backLabel="Bajnokság"
+          />
+        }
+      />
       <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>

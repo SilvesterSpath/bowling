@@ -2,91 +2,89 @@
 
 ## Phase
 
-**Bajnokság Phase 1 — Data layer (no UI)** (completed)
+**Bajnokság Phase 2 — Setup, home, hub shell** (completed)
 
-Previous MVP (Meccs Phases 0–8) remains stable. Tournament UI starts in Phase 2.
+Phase 3 adds real duel scoring (`TournamentDuelPage` replaces placeholder).
 
 ## Status
 
 Completed — 2026-05-27
 
-## Goals (Phase 1)
+## Goals (Phase 2)
 
-- [x] Tournament types (`Tournament`, `TournamentDuel`, `TournamentBracketRound`)
-- [x] `AppState` schema v2: `tournaments[]`, `activeTournamentId`
-- [x] v1 → v2 migration (preserve players, matches, `activeMatchId`; no data wipe)
-- [x] `loadState` normalization for tournaments, duels, tie-break rounds
-- [x] Session exclusivity helper (`enforceSessionExclusivity`)
-- [x] `utils/tournament.ts` — pairing, labels, progress, duel/tie-break resolution
-- [x] `constants/tournament.ts` — default 3 duel rounds
-- [x] Vitest pairing tests (2 / 3 / 8 players, tie-break)
+- [x] `TournamentNewPage` + `TournamentSetupForm` (players, shuffle, duel rounds default **3**)
+- [x] `TournamentHubPage` + `TournamentProgressPanel` (wired to `getTournamentProgress`)
+- [x] Home: **Új bajnokság**, **Folytatás** for active tournament, mutual-exclusion with Meccs
+- [x] `MatchSetupForm` blocks when bajnokság active; tournament setup blocks when meccs active
+- [x] `useActiveTournament` hook
+- [x] `abandonActiveTournament` — no history row (tournament removed from state)
+- [x] Routes: `/tournament/new`, `/tournament`, `/tournament/duel` (placeholder until Phase 3)
+- [x] Hub: **Párharc indítása** / **Folytatás**, **Következő szakasz**, **Bajnokság elvetése**
 - [x] `npm run build` + `npm run test` pass
 
 ## What was built
 
 | File | Purpose |
 |------|---------|
-| `src/types/tournament.ts` | Tournament domain types |
-| `src/types/index.ts` | `AppState` v2 + re-exports |
-| `src/constants/tournament.ts` | `DEFAULT_TOURNAMENT_DUEL_ROUNDS = 3`, min/max, tie-break constant |
-| `src/constants/storage.ts` | `SCHEMA_VERSION = 2`, `MAX_COMPLETED_TOURNAMENTS` |
-| `src/storage/migrate.ts` | v1 → v2 migration; v2 passthrough |
-| `src/storage/loadState.ts` | Normalize tournaments; enforce active session XOR |
-| `src/storage/defaultState.ts` | Empty `tournaments`, `activeTournamentId: null` |
-| `src/utils/tournament.ts` | Full tournament logic (see API below) |
-| `src/utils/tournament.test.ts` | 8 unit tests |
-| `package.json` | `vitest`, `"test": "vitest run"` |
-| `vite.config.ts` | Vitest `include` for `*.test.ts` |
+| `src/hooks/useActiveTournament.ts` | Active tournament from `activeTournamentId` |
+| `src/components/tournament/TournamentSetupForm.tsx` | Player select, shuffle, duel round stepper, name |
+| `src/components/tournament/TournamentProgressPanel.tsx` | Hub progress blocks (Hungarian labels) |
+| `src/pages/TournamentNewPage.tsx` | Új bajnokság setup screen |
+| `src/pages/TournamentHubPage.tsx` | Bajnokság központ, CTAs, abandon, advance round |
+| `src/pages/HomePage.tsx` | Új bajnokság, tournament Folytatás, abandon |
+| `src/components/match/MatchSetupForm.tsx` | Block if tournament active; clear `activeTournamentId` on new match |
+| `src/App.tsx` | Tournament routes + duel placeholder |
+| `src/utils/tournament.ts` | `abandonActiveTournament`, `activateDuel`, `updateActiveTournament`, … |
+| `src/index.css` | `.tournament-progress`, `.tournament-hub__*` |
 
-## Schema v2 (`AppState`)
+## Routes
 
-```ts
-{
-  schemaVersion: 2,
-  players: Player[],
-  matches: Match[],           // unchanged
-  tournaments: Tournament[],
-  activeMatchId: MatchId | null,
-  activeTournamentId: TournamentId | null,
-}
-```
+| Route | Screen | Notes |
+|-------|--------|-------|
+| `/tournament/new` | `TournamentNewPage` | Setup; redirects if session blocked |
+| `/tournament` | `TournamentHubPage` | Progress + CTAs; redirect `/` if no active tournament |
+| `/tournament/duel` | Placeholder | Phase 3 replaces with score entry |
 
-**Storage key unchanged:** `lengoteke:v1:state` (JSON shape grows).
+Meccs routes unchanged.
 
-**Migration:** Existing v1 saves upgrade automatically on load — `tournaments: []`, `activeTournamentId: null`.
+## Active session rules (enforced in UI)
 
-**Invariant:** `activeMatchId` and `activeTournamentId` cannot both be set (normalized on load; prefer clearing tournament if both present).
+| State | Home primary CTA | Blocked actions |
+|-------|------------------|-----------------|
+| Active meccs | Folytatás → `/match/play` | Új bajnokság (setup shows block) |
+| Active bajnokság | Folytatás → `/tournament` | Új meccs (setup shows block) |
+| None | — | Both **Új meccs** and **Új bajnokság** available |
 
-## `utils/tournament.ts` API
+Starting a tournament sets `activeTournamentId` and clears `activeMatchId`. Starting a match clears `activeTournamentId`.
+
+## Hub behaviour
+
+| UI block | Source |
+|----------|--------|
+| Aktuális szakasz | `getTournamentProgress().roundLabel` |
+| Hátralévő játékosok | `remainingPlayerCount` |
+| Hátralévő párharcok | `remainingDuelCount` |
+| Továbbjutók | `advancedPlayerIds` (+ erőnyerő in list) |
+| Aktuális párharc | `currentDuel` names |
+| Erőnyerő | `byePlayerId` |
+
+| CTA | When |
+|-----|------|
+| **Párharc indítása — A vs B** | Pending duel; activates duel → `/tournament/duel` |
+| **Folytatás — A vs B** | Duel already `active` |
+| **Következő szakasz** | All duels in round complete → `advanceBracket` |
+| Győztes üzenet | `championId` set (celebration screen = Phase 4) |
+| **Bajnokság elvetése** | Confirm; removes tournament (no Előzmények entry) |
+
+## `utils/tournament.ts` additions (Phase 2)
 
 | Export | Role |
 |--------|------|
-| `createTournament` | Setup: name, players, optional shuffle, `roundsPerDuel` (default 3) |
-| `buildFirstBracketRound` | First bracket: shuffle, pairs, erőnyerő on odd count |
-| `buildBracketRoundFromPool` | Next-round pairing from winner pool |
-| `advanceBracket` | When round complete → champion or next bracket round |
-| `getRoundLabel` | Döntő / Elődöntő / Negyedfődöntő / `{n}. forduló` |
-| `getTournamentProgress` | Hub fields: label, remaining players/duels, advanced, current duel, bye |
-| `resolveDuelWinner` | Main totals, then latest tie-break round; no manual winner |
-| `needsTieBreak` / `needsAnotherTieBreakRound` | Tie-break flow helpers |
-| `createTieBreakRound` | Single playoff round for two players |
-| `pruneCompletedTournaments` | Keep last 50 completed (mirror matches) |
-| `canStartMatch` / `canStartTournament` | Mutual-exclusion guards for Phase 2 UI |
-| `hasActiveMatch` / `hasActiveTournament` | Active session detection |
-| `enforceSessionExclusivity` | Used by `loadState` normalization |
-
-## Tests (`npm run test`)
-
-| Test | Coverage |
-|------|----------|
-| 2 players | 1 duel, no bye |
-| 3 players | 1 duel + erőnyerő |
-| 8 players | 4 duels, Negyedfődöntő label |
-| 2-player advance | Champion after round 1 |
-| 8-player advance | 4 → Elődöntő → Döntő → champion |
-| 3-player bye path | Winner + bye → final pairing |
-| Main totals | Higher total wins |
-| Tie-break | Repeat playoffs until unequal |
+| `abandonActiveTournament` | Remove active tournament; clear `activeTournamentId` |
+| `hasAnyTournamentScoresEntered` | Abandon confirm copy |
+| `activateDuel` | Set `activeDuelId`, duel `status: active` |
+| `updateActiveTournament` | Immutable update helper for pages |
+| `getActiveTournament` | Lookup active tournament in state |
 
 ## Verification
 
@@ -94,32 +92,43 @@ Completed — 2026-05-27
 |-------|--------|
 | `npm run build` | Pass |
 | `npm run test` | 8/8 pass |
-| Meccs routes / pages | Unchanged (no UI in Phase 1) |
-| Tournament routes | Not added yet (Phase 2+) |
+| Meccs flow | Unchanged routes and play/end/history |
+| Tournament setup | Creates tournament + navigates to hub |
+| Placeholder duel | `/tournament/duel` — back to hub |
 
-## Not in Phase 1 (by design)
+## Manual smoke test (recommended)
 
-- No tournament pages or routes
-- No Home **Új bajnokság** button
-- No `useActiveTournament` hook (Phase 2)
-- No history merge for tournaments (Phase 5)
+- [ ] Home → **Új bajnokság** → 3+ players, shuffle on, start → hub shows progress
+- [ ] Home with active bajnokság → **Folytatás** only (no meccs Folytatás)
+- [ ] **Új meccs** blocked while bajnokság active
+- [ ] **Párharc indítása** → placeholder → back to hub
+- [ ] **Bajnokság elvetése** → home, no history entry
+- [ ] Start meccs after abandon bajnokság works
+
+## Not in Phase 2 (by design)
+
+- Real duel score entry (`TournamentDuelPage`) — Phase 3
+- Tie-break page — Phase 3
+- Champion celebration — Phase 4
+- Tournament history — Phase 5
 
 ## Next phase
 
-**Phase 2 — Setup, home, hub shell**
+**Phase 3 — Duel + tie-break**
 
-- `TournamentNewPage`, `TournamentHubPage`, `TournamentProgressPanel`
-- Home: **Új bajnokság**, **Folytatás**, mutual-exclusion with Meccs
-- Abandon tournament helper (no history row)
-- Routes in `App.tsx`: `/tournament/new`, `/tournament`
+- `TournamentDuelPage` (N rounds, reuse `RoundScoreGrid`)
+- `TournamentTiebreakPage` (1 round playoffs, auto-repeat if tied)
+- Replace `/tournament/duel` placeholder
+- Wire duel completion → hub / tie-break / advance
 
 ## References
 
-- Full spec: [bajnoksag-plan.md](../bajnoksag-plan.md)
-- Phase 0 review: [bajnoksag-phase0-review.md](../bajnoksag-phase0-review.md)
+- [bajnoksag-plan.md](../bajnoksag-plan.md)
+- [bajnoksag-phase0-review.md](../bajnoksag-phase0-review.md)
 
 ## History
 
-- 2026-05-27 — MVP Phases 0–8 (Meccs) completed.
+- 2026-05-27 — MVP Meccs Phases 0–8.
 - 2026-05-27 — Bajnokság Phase 0: Meccs stability review.
-- 2026-05-27 — Bajnokság Phase 1: types, schema v2, migration, tournament utils, tests.
+- 2026-05-27 — Bajnokság Phase 1: schema v2, tournament utils, tests.
+- 2026-05-27 — Bajnokság Phase 2: setup, home, hub shell, session guards.

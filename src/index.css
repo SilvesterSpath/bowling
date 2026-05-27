@@ -1181,3 +1181,70 @@ fieldset.match-setup__section > .match-setup__hint {
 .app-shell--compact .match-setup {
   gap: var(--space-md);
 }
+
+/* —— Tournament hub —— */
+.tournament-hub__name {
+  margin: 0 0 var(--space-md);
+  font-size: 1rem;
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.tournament-hub__footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
+}
+
+.tournament-hub__hint,
+.tournament-hub__champion {
+  margin: 0;
+  padding: var(--space-md);
+  text-align: center;
+  color: var(--color-muted);
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.tournament-hub__champion {
+  color: var(--color-gold);
+  font-weight: 600;
+}
+
+.tournament-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.tournament-progress__block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.tournament-progress__label {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-muted);
+}
+
+.tournament-progress__value {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+.tournament-progress__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}

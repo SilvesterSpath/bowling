@@ -6,6 +6,7 @@ import {
 import { MAX_COMPLETED_TOURNAMENTS } from '../constants/storage';
 import type {
   AppState,
+  DuelId,
   PlayerId,
   Round,
   Tournament,
@@ -467,4 +468,88 @@ export function enforceSessionExclusivity(state: AppState): AppState {
     return { ...state, activeTournamentId: null };
   }
   return state;
+}
+
+function duelHasAnyScores(duel: TournamentDuel): boolean {
+  for (const round of duel.rounds) {
+    if (round.scores.some((entry) => entry.score !== null)) {
+      return true;
+    }
+  }
+  for (const round of duel.tieBreakRounds ?? []) {
+    if (round.scores.some((entry) => entry.score !== null)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+export function hasAnyTournamentScoresEntered(tournament: Tournament): boolean {
+  return tournament.bracketRounds.some((round) =>
+    round.duels.some((duel) => duelHasAnyScores(duel)),
+  );
+}
+
+export function getActiveTournament(state: AppState): Tournament | null {
+  if (!state.activeTournamentId) {
+    return null;
+  }
+  return (
+    state.tournaments.find(
+      (tournament) =>
+        tournament.id === state.activeTournamentId &&
+        tournament.status === 'active',
+    ) ?? null
+  );
+}
+
+export function updateActiveTournament(
+  state: AppState,
+  updater: (tournament: Tournament) => Tournament,
+): AppState {
+  const activeId = state.activeTournamentId;
+  if (!activeId) {
+    return state;
+  }
+  return {
+    ...state,
+    tournaments: state.tournaments.map((tournament) =>
+      tournament.id === activeId ? updater(tournament) : tournament,
+    ),
+  };
+}
+
+export function activateDuel(
+  tournament: Tournament,
+  duelId: DuelId,
+): Tournament {
+  return {
+    ...tournament,
+    activeDuelId: duelId,
+    bracketRounds: tournament.bracketRounds.map((round) => ({
+      ...round,
+      duels: round.duels.map((duel) => {
+        if (duel.id === duelId) {
+          return { ...duel, status: 'active' as const };
+        }
+        if (duel.status === 'active') {
+          return { ...duel, status: 'pending' as const };
+        }
+        return duel;
+      }),
+    })),
+  };
+}
+
+export function abandonActiveTournament(state: AppState): AppState {
+  if (!state.activeTournamentId) {
+    return state;
+  }
+  return {
+    ...state,
+    tournaments: state.tournaments.filter(
+      (tournament) => tournament.id !== state.activeTournamentId,
+    ),
+    activeTournamentId: null,
+  };
 }

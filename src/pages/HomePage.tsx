@@ -5,14 +5,21 @@ import { DataBackupPanel } from '../components/common/DataBackupPanel';
 import { StorageHintBanner } from '../components/common/StorageHintBanner';
 import { AppShell } from '../components/layout/AppShell';
 import { useActiveMatch } from '../hooks/useActiveMatch';
+import { useActiveTournament } from '../hooks/useActiveTournament';
 import { useAppState } from '../hooks/useAppState';
 import { abandonActiveMatch } from '../utils/match';
 import { hasAnyScoresEntered } from '../utils/scoring';
+import {
+  abandonActiveTournament,
+  hasAnyTournamentScoresEntered,
+} from '../utils/tournament';
 
 export function HomePage() {
   const activeMatch = useActiveMatch();
+  const activeTournament = useActiveTournament();
   const { update } = useAppState();
-  const [abandonOpen, setAbandonOpen] = useState(false);
+  const [abandonMatchOpen, setAbandonMatchOpen] = useState(false);
+  const [abandonTournamentOpen, setAbandonTournamentOpen] = useState(false);
 
   const abandonMessage = activeMatch
     ? hasAnyScoresEntered(activeMatch)
@@ -20,10 +27,21 @@ export function HomePage() {
       : `A(z) „${activeMatch.name}” törlődik. Folytatod?`
     : '';
 
-  const handleAbandon = () => {
+  const handleAbandonMatch = () => {
     update((prev) => abandonActiveMatch(prev));
-    setAbandonOpen(false);
+    setAbandonMatchOpen(false);
   };
+
+  const handleAbandonTournament = () => {
+    update((prev) => abandonActiveTournament(prev));
+    setAbandonTournamentOpen(false);
+  };
+
+  const tournamentAbandonMessage = activeTournament
+    ? hasAnyTournamentScoresEntered(activeTournament)
+      ? `A(z) „${activeTournament.name}” bajnokság elvetése törli az eddigi párharcokat. Folytatod?`
+      : `A(z) „${activeTournament.name}” bajnokság törlődik. Folytatod?`
+    : '';
 
   return (
     <AppShell>
@@ -37,7 +55,11 @@ export function HomePage() {
       </header>
 
       <nav className='home-nav' aria-label='Főmenü'>
-        {activeMatch ? (
+        {activeTournament ? (
+          <Link to='/tournament' className='btn btn--primary btn--block'>
+            Folytatás — {activeTournament.name}
+          </Link>
+        ) : activeMatch ? (
           <Link to='/match/play' className='btn btn--primary btn--block'>
             Folytatás — {activeMatch.name}
           </Link>
@@ -45,6 +67,9 @@ export function HomePage() {
 
         <Link to='/match/new' className='btn btn--secondary btn--block'>
           Új meccs
+        </Link>
+        <Link to='/tournament/new' className='btn btn--secondary btn--block'>
+          Új bajnokság
         </Link>
         <Link to='/players' className='btn btn--secondary btn--block'>
           Játékosok
@@ -64,9 +89,24 @@ export function HomePage() {
             <button
               type='button'
               className='btn btn--ghost btn--block btn--danger-text'
-              onClick={() => setAbandonOpen(true)}
+              onClick={() => setAbandonMatchOpen(true)}
             >
               Meccs elvetése
+            </button>
+          </>
+        ) : null}
+
+        {activeTournament ? (
+          <>
+            <Link to='/tournament' className='btn btn--ghost btn--block'>
+              Bajnokság központ
+            </Link>
+            <button
+              type='button'
+              className='btn btn--ghost btn--block btn--danger-text'
+              onClick={() => setAbandonTournamentOpen(true)}
+            >
+              Bajnokság elvetése
             </button>
           </>
         ) : null}
@@ -75,12 +115,21 @@ export function HomePage() {
       <DataBackupPanel />
 
       <ConfirmDialog
-        open={abandonOpen}
+        open={abandonMatchOpen}
         title='Meccs elvetése'
         message={abandonMessage}
         confirmLabel='Elvetés'
-        onConfirm={handleAbandon}
-        onCancel={() => setAbandonOpen(false)}
+        onConfirm={handleAbandonMatch}
+        onCancel={() => setAbandonMatchOpen(false)}
+      />
+
+      <ConfirmDialog
+        open={abandonTournamentOpen}
+        title='Bajnokság elvetése'
+        message={tournamentAbandonMessage}
+        confirmLabel='Elvetés'
+        onConfirm={handleAbandonTournament}
+        onCancel={() => setAbandonTournamentOpen(false)}
       />
     </AppShell>
   );

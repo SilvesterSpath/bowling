@@ -1,21 +1,20 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  DEFAULT_ROUND_COUNT,
-  MAX_PLAYERS,
-  MAX_ROUND_COUNT,
-  MIN_PLAYERS,
-  MIN_ROUND_COUNT,
-} from '../../constants/scoring';
+  DEFAULT_TOURNAMENT_DUEL_ROUNDS,
+  MAX_TOURNAMENT_DUEL_ROUNDS,
+  MIN_TOURNAMENT_DUEL_ROUNDS,
+} from '../../constants/tournament';
+import { MAX_PLAYERS, MIN_PLAYERS } from '../../constants/scoring';
 import { useAppState } from '../../hooks/useAppState';
 import { useActiveMatch } from '../../hooks/useActiveMatch';
 import { useActiveTournament } from '../../hooks/useActiveTournament';
 import type { PlayerId } from '../../types';
-import { defaultMatchName, displayName } from '../../utils/format';
-import { createMatch } from '../../utils/match';
+import { defaultTournamentName, createTournament } from '../../utils/tournament';
+import { displayName } from '../../utils/format';
 import { sortPlayersByName } from '../../utils/players';
 
-export function MatchSetupForm() {
+export function TournamentSetupForm() {
   const navigate = useNavigate();
   const { state, update } = useAppState();
   const activeMatch = useActiveMatch();
@@ -23,8 +22,11 @@ export function MatchSetupForm() {
   const players = sortPlayersByName(state.players);
 
   const [selectedIds, setSelectedIds] = useState<Set<PlayerId>>(new Set());
-  const [roundCount, setRoundCount] = useState(DEFAULT_ROUND_COUNT);
-  const [matchName, setMatchName] = useState('');
+  const [roundsPerDuel, setRoundsPerDuel] = useState(
+    DEFAULT_TOURNAMENT_DUEL_ROUNDS,
+  );
+  const [shuffle, setShuffle] = useState(true);
+  const [tournamentName, setTournamentName] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   const togglePlayer = (playerId: PlayerId) => {
@@ -41,8 +43,11 @@ export function MatchSetupForm() {
   };
 
   const adjustRounds = (delta: number) => {
-    setRoundCount((prev) =>
-      Math.min(MAX_ROUND_COUNT, Math.max(MIN_ROUND_COUNT, prev + delta)),
+    setRoundsPerDuel((prev) =>
+      Math.min(
+        MAX_TOURNAMENT_DUEL_ROUNDS,
+        Math.max(MIN_TOURNAMENT_DUEL_ROUNDS, prev + delta),
+      ),
     );
     setError(null);
   };
@@ -50,13 +55,13 @@ export function MatchSetupForm() {
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
 
-    if (activeTournament) {
-      setError('Már fut egy bajnokság. Előbb fejezd be vagy vedd el.');
+    if (activeMatch) {
+      setError('Már fut egy meccs. Előbb fejezd be vagy vedd el.');
       return;
     }
 
-    if (activeMatch) {
-      setError('Már fut egy meccs. Folytasd vagy fejezd be előbb.');
+    if (activeTournament) {
+      setError('Már fut egy bajnokság. Folytasd vagy vedd el előbb.');
       return;
     }
 
@@ -65,30 +70,26 @@ export function MatchSetupForm() {
       return;
     }
 
-    if (selectedIds.size > MAX_PLAYERS) {
-      setError(`Legfeljebb ${MAX_PLAYERS} játékos lehet egy meccsen.`);
-      return;
-    }
-
     const playerIds = players
       .filter((player) => selectedIds.has(player.id))
       .map((player) => player.id);
 
-    const match = createMatch({
-      name: matchName,
+    const tournament = createTournament({
+      name: tournamentName,
       playerIds,
-      roundCount,
+      roundsPerDuel,
+      shuffle,
     });
 
     const result = update((prev) => ({
       ...prev,
-      matches: [...prev.matches, match],
-      activeMatchId: match.id,
-      activeTournamentId: null,
+      tournaments: [...prev.tournaments, tournament],
+      activeTournamentId: tournament.id,
+      activeMatchId: null,
     }));
 
     if (result.ok) {
-      navigate('/match/play');
+      navigate('/tournament');
     } else {
       setError('Nem sikerült menteni. Próbáld újra.');
     }
@@ -98,26 +99,10 @@ export function MatchSetupForm() {
     return (
       <div className="match-setup match-setup--empty">
         <p className="match-setup__hint">
-          Legalább {MIN_PLAYERS} játékos kell egy meccshez.
+          Legalább {MIN_PLAYERS} játékos kell egy bajnoksághoz.
         </p>
         <Link to="/players" className="btn btn--primary btn--block">
           Játékosok hozzáadása
-        </Link>
-      </div>
-    );
-  }
-
-  if (activeTournament) {
-    return (
-      <div className="match-setup match-setup--blocked">
-        <p className="field-error" role="alert">
-          Már fut egy bajnokság: {activeTournament.name}
-        </p>
-        <p className="match-setup__hint">
-          Az új meccs csak bajnokság elvetése után indítható.
-        </p>
-        <Link to="/" className="btn btn--primary btn--block">
-          Vissza a főoldalra
         </Link>
       </div>
     );
@@ -129,8 +114,24 @@ export function MatchSetupForm() {
         <p className="field-error" role="alert">
           Már fut egy meccs: {activeMatch.name}
         </p>
-        <Link to="/match/play" className="btn btn--primary btn--block">
-          Meccs folytatása
+        <p className="match-setup__hint">
+          A bajnokság csak meccs elvetése után indítható.
+        </p>
+        <Link to="/" className="btn btn--primary btn--block">
+          Vissza a főoldalra
+        </Link>
+      </div>
+    );
+  }
+
+  if (activeTournament) {
+    return (
+      <div className="match-setup match-setup--blocked">
+        <p className="field-error" role="alert">
+          Már fut egy bajnokság: {activeTournament.name}
+        </p>
+        <Link to="/tournament" className="btn btn--primary btn--block">
+          Bajnokság folytatása
         </Link>
         <Link to="/" className="btn btn--ghost btn--block">
           Vissza a főoldalra
@@ -144,14 +145,14 @@ export function MatchSetupForm() {
       <fieldset className="match-setup__section">
         <legend className="match-setup__legend">Játékosok</legend>
         <p className="match-setup__hint">
-          Válassz {MIN_PLAYERS}–{MAX_PLAYERS} játékost ({selectedIds.size}{' '}
-          kiválasztva)
+          Válassz legalább {MIN_PLAYERS} játékost ({selectedIds.size}{' '}
+          kiválasztva). Párosítás automatikus
+          {shuffle ? ', véletlen sorrendben' : ''}.
         </p>
         <ul className="match-setup__players">
           {players.map((player) => {
             const checked = selectedIds.has(player.id);
-            const disabled =
-              !checked && selectedIds.size >= MAX_PLAYERS;
+            const disabled = !checked && selectedIds.size >= MAX_PLAYERS;
             return (
               <li key={player.id}>
                 <label
@@ -172,49 +173,60 @@ export function MatchSetupForm() {
       </fieldset>
 
       <div className="match-setup__section">
-        <label className="match-setup__legend" htmlFor="round-count">
-          Körök száma
+        <label className="match-setup__legend" htmlFor="duel-round-count">
+          Körök párharcenként
         </label>
         <div className="round-stepper">
           <button
             type="button"
             className="btn btn--secondary round-stepper__btn"
             onClick={() => adjustRounds(-1)}
-            disabled={roundCount <= MIN_ROUND_COUNT}
+            disabled={roundsPerDuel <= MIN_TOURNAMENT_DUEL_ROUNDS}
             aria-label="Kevesebb kör"
           >
             −
           </button>
-          <span id="round-count" className="round-stepper__value">
-            {roundCount}
+          <span id="duel-round-count" className="round-stepper__value">
+            {roundsPerDuel}
           </span>
           <button
             type="button"
             className="btn btn--secondary round-stepper__btn"
             onClick={() => adjustRounds(1)}
-            disabled={roundCount >= MAX_ROUND_COUNT}
+            disabled={roundsPerDuel >= MAX_TOURNAMENT_DUEL_ROUNDS}
             aria-label="Több kör"
           >
             +
           </button>
         </div>
         <p className="match-setup__hint">
-          {MIN_ROUND_COUNT}–{MAX_ROUND_COUNT} kör (alapértelmezett:{' '}
-          {DEFAULT_ROUND_COUNT})
+          {MIN_TOURNAMENT_DUEL_ROUNDS}–{MAX_TOURNAMENT_DUEL_ROUNDS} kör
+          (alapértelmezett: {DEFAULT_TOURNAMENT_DUEL_ROUNDS})
         </p>
       </div>
 
       <div className="match-setup__section">
-        <label className="match-setup__legend" htmlFor="match-name">
-          Meccs neve (opcionális)
+        <label className="match-setup__player">
+          <input
+            type="checkbox"
+            checked={shuffle}
+            onChange={(event) => setShuffle(event.target.checked)}
+          />
+          <span>Játékosok összekeverése (véletlen párosítás)</span>
+        </label>
+      </div>
+
+      <div className="match-setup__section">
+        <label className="match-setup__legend" htmlFor="tournament-name">
+          Bajnokság neve (opcionális)
         </label>
         <input
-          id="match-name"
+          id="tournament-name"
           className="input"
           type="text"
-          value={matchName}
-          onChange={(event) => setMatchName(event.target.value)}
-          placeholder={defaultMatchName()}
+          value={tournamentName}
+          onChange={(event) => setTournamentName(event.target.value)}
+          placeholder={defaultTournamentName()}
           maxLength={48}
         />
       </div>
@@ -226,7 +238,7 @@ export function MatchSetupForm() {
       ) : null}
 
       <button type="submit" className="btn btn--primary btn--block">
-        Meccs indítása
+        Bajnokság indítása
       </button>
     </form>
   );
