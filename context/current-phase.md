@@ -2,9 +2,9 @@
 
 ## Phase
 
-**Phase 5 — Meccs vége és címek** (completed)
+**Phase 6 — Előzmények** (completed)
 
-Next: **Phase 6 — Előzmények** ([phase-6.md](phases/phase-6.md))
+Next: **Phase 7 — Polish** ([phase-7.md](phases/phase-7.md))
 
 ## Status
 
@@ -12,58 +12,50 @@ Completed
 
 ## Goals
 
-- [x] `computeTitles()` with priority rules (champion → default)
-- [x] Meccs vége page: végeredmény + címek
-- [x] `TitleCard` component
-- [x] **Befejezés** — `status: completed`, `completedAt`, persist `titles`
-- [x] Clear `activeMatchId` on finalize
-- [x] Prune completed matches to max 50 (`pruneCompletedMatches`)
-- [x] Links to `/match/end` from Játék and Eredménytábla
+- [x] List completed matches, newest first
+- [x] History card: name, date, winner(s), player/round count
+- [x] Detail: frozen leaderboard from match data
+- [x] Detail: stored `titles` (read-only, no recompute)
+- [x] Detail: compact round-by-round score table
+- [x] Empty state: „Még nincs befejezett meccs…”
+- [x] Invalid / non-completed match id → friendly error + back link
 - [x] Hungarian UI throughout
 
 ## What was built
 
 | File | Purpose |
 |------|---------|
-| `src/utils/titles.ts` | Stats + priority title assignment |
-| `src/utils/match.ts` | `pruneCompletedMatches` |
-| `src/components/leaderboard/TitleCard.tsx` | Player + title display |
-| `src/pages/MatchEndPage.tsx` | Leaderboard, titles, finalize |
-| `src/pages/LeaderboardPage.tsx` | Meccs vége link |
-| `src/pages/PlayMatchPage.tsx` | Meccs vége link |
+| `src/utils/history.ts` | `getCompletedMatches`, `getMatchById`, `getWinnerLabel` |
+| `src/components/history/HistoryList.tsx` | Clickable match cards |
+| `src/components/history/HistoryDetail.tsx` | Read-only recap |
+| `src/pages/HistoryPage.tsx` | List + detail routes |
+| `src/index.css` | History list, detail, rounds table styles |
 
-## Title rules (priority)
+## Routes
 
-1. champion — rank 1  
-2. last_place — last rank (≥2 players)  
-3. high_roller — max round === global max  
-4. gutter_king — most nullák (zeros)  
-5. steady_eddie — lowest std dev (≥2 scored rounds)  
-6. roller_coaster — highest max−min spread  
-7. clutch_finisher — best score in final round  
-8. slow_starter — biggest 2nd-half improvement  
-9. party_animal — middle rank  
-10. default — fallback  
-
-Each player receives exactly one title.
+| Path | View |
+|------|------|
+| `/history` | Completed matches list |
+| `/history/:matchId` | Match detail (read-only) |
 
 ## Browser verification
 
-**Dev server:** `http://localhost:5174/`
+**Dev server:** `http://localhost:5174/history`
 
 | Test | Result |
 |------|--------|
-| `/match/end` with tied leaders | Both show „Kupaőr — A Szilveszter Kupája” |
-| Befejezés | Redirect home; no Folytatás link |
-| localStorage | `activeMatchId: null`, 1 completed match, 2 titles saved |
-| Build | `npm run build` passes (58 modules) |
+| List | Shows „Teszt Kupa” with date, győztes, counts |
+| Detail | Végeredmény, Címek, Körök sections |
+| Stored titles | Anna + Béla Kupaőr titles from finalize |
+| Invalid id | Error message + vissza link |
+| Build | `npm run build` passes (60 modules) |
 
 ## Notes
 
-- `phase-5.md` previously duplicated Phase 4 text — corrected to Meccs vége spec.
-- History list UI still Phase 6.
+- `phase-6.md` previously duplicated Phase 5 (titles) — corrected to Előzmények spec (titles done in Phase 5).
+- Delete match from history remains out of scope (low priority).
 
 ## History
 
-- 2026-05-27 — Phases 0–4: Scaffold through Eredménytábla.
-- 2026-05-27 — Phase 5: Titles, Meccs vége, finalize + prune, browser tests.
+- 2026-05-27 — Phases 0–5: Through Meccs vége és címek.
+- 2026-05-27 — Phase 6: Előzmények list + detail, browser tests.

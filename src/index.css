@@ -614,6 +614,95 @@ p {
   font-size: 1rem;
 }
 
+.history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.history-card {
+  display: block;
+  padding: var(--space-md);
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+  transition: border-color 0.15s ease;
+}
+
+.history-card:active {
+  border-color: var(--color-gold);
+}
+
+.history-card__name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-gold);
+  margin-bottom: var(--space-xs);
+}
+
+.history-card__meta {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  margin-bottom: var(--space-xs);
+}
+
+.history-card__winner {
+  font-weight: 600;
+  margin-bottom: var(--space-xs);
+}
+
+.history-card__count {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.history-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.history-detail__date {
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.rounds-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.rounds-table {
+  width: 100%;
+  min-width: 280px;
+  border-collapse: collapse;
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+}
+
+.rounds-table th,
+.rounds-table td {
+  padding: var(--space-sm);
+  text-align: center;
+  border-top: 1px solid var(--color-border);
+  font-size: 0.95rem;
+}
+
+.rounds-table thead th {
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.rounds-table td:first-child {
+  font-weight: 700;
+  color: var(--color-gold);
+}
+
 .save-error-banner {
   position: sticky;
   top: 0;
