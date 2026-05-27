@@ -1,6 +1,7 @@
 import type { Player, Tournament, TournamentDuel } from '../../types';
 import { displayName } from '../../utils/format';
 import { getDuelMainTotals } from '../../utils/tournament';
+import { DuelRoundTitlesRecap } from './DuelRoundTitlesRecap';
 
 interface TournamentBracketViewProps {
   tournament: Tournament;
@@ -85,6 +86,9 @@ export function TournamentBracketView({
                 championId &&
                 (duel.playerAId === championId || duel.playerBId === championId) &&
                 duel.winnerId === championId;
+              const duelPlayers = [duel.playerAId, duel.playerBId]
+                .map((id) => playersById.get(id))
+                .filter((player): player is Player => player !== undefined);
 
               return (
                 <li
@@ -121,6 +125,14 @@ export function TournamentBracketView({
                       Győztes:{' '}
                       <strong>{playerName(playersById, duel.winnerId)}</strong>
                     </p>
+                  ) : null}
+
+                  {duelPlayers.length === 2 ? (
+                    <DuelRoundTitlesRecap
+                      duel={duel}
+                      players={duelPlayers}
+                      roundsPerDuel={tournament.roundsPerDuel}
+                    />
                   ) : null}
                 </li>
               );

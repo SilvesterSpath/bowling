@@ -1546,6 +1546,10 @@ fieldset.match-setup__section > .match-setup__hint {
   color: var(--color-text-muted);
 }
 
+.bracket-duel__titles {
+  margin-top: var(--space-md);
+}
+
 .rounds-table--compact th,
 .rounds-table--compact td {
   padding: var(--space-xs) var(--space-sm);

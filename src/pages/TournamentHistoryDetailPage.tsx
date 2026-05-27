@@ -1,10 +1,12 @@
 import { Link, useParams } from 'react-router-dom';
+import { TitleCard } from '../components/leaderboard/TitleCard';
 import { AppShell } from '../components/layout/AppShell';
 import { PageHeader } from '../components/layout/PageHeader';
 import { TournamentBracketView } from '../components/tournament/TournamentBracketView';
 import { useAppState } from '../hooks/useAppState';
 import { displayName, formatMatchDate } from '../utils/format';
 import { getTournamentById } from '../utils/history';
+import { computeTournamentPlacementTitles } from '../utils/placementTitles';
 import { sortPlayersByName } from '../utils/players';
 
 export function TournamentHistoryDetailPage() {
@@ -47,6 +49,11 @@ export function TournamentHistoryDetailPage() {
     ? playersById.get(tournament.championId)
     : null;
 
+  const placementTitles =
+    tournament.titles && tournament.titles.length > 0
+      ? tournament.titles
+      : computeTournamentPlacementTitles(tournament);
+
   return (
     <AppShell compact>
       <PageHeader
@@ -65,6 +72,23 @@ export function TournamentHistoryDetailPage() {
             <p className="tournament-history-champion__name">
               {displayName(champion)}
             </p>
+          </section>
+        ) : null}
+
+        {placementTitles.length > 0 ? (
+          <section className="match-end__section">
+            <h2 className="match-end__heading">Helyezési címek</h2>
+            <div className="title-card-list">
+              {placementTitles.map((title) => {
+                const player = playersById.get(title.playerId);
+                if (!player) {
+                  return null;
+                }
+                return (
+                  <TitleCard key={title.playerId} player={player} title={title} />
+                );
+              })}
+            </div>
           </section>
         ) : null}
 

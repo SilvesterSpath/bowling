@@ -2,9 +2,9 @@
 
 ## Phase
 
-**Bajnokság titles — Phase 3** (completed)
+**Bajnokság titles — Phase 4** (completed)
 
-Persist placement titles on finalize and show **Helyezési címek** on the champion screen.
+History parity: placement titles + per-duel round title recap on tournament detail.
 
 ## Status
 
@@ -12,31 +12,31 @@ Completed — 2026-05-27
 
 **Branch:** `feature/bajnoksag-titles`
 
-## Goals (Titles Phase 3)
+## Goals (Titles Phase 4)
 
-- [x] `Tournament.titles?: PlayerTitle[]` on type
-- [x] `loadState` — `normalizePlayerTitles` for matches + tournaments
-- [x] `finalizeActiveTournament` — sets `titles: computeTournamentPlacementTitles(...)`
-- [x] `TournamentChampionPage` — **Helyezési címek** section for all entrants (live compute, matches finalize snapshot)
-- [x] Test: finalize persists titles
+- [x] `RoundTitlesRecapCore` — shared `{ rounds, playerIds, players }` with labeled entries
+- [x] `RoundTitlesRecap` — Meccs wrapper (unchanged UX for match end + history)
+- [x] `DuelRoundTitlesRecap` — main körök + döntő körök per párharc
+- [x] `TournamentBracketView` — recap under each duel in ágrajz
+- [x] `TournamentHistoryDetailPage` — **Helyezési címek** from `tournament.titles` (fallback: recompute)
 - [x] `npm run build` + `npm run test` (25/25) + `npm run lint` (clean)
 
 ## What was built
 
 | File | Change |
 |------|--------|
-| `src/types/tournament.ts` | Optional `titles?: PlayerTitle[]` |
-| `src/storage/loadState.ts` | `normalizePlayerTitles`; tournament + match titles |
-| `src/utils/tournament.ts` | Finalize stores placement titles |
-| `src/pages/TournamentChampionPage.tsx` | `TitleCard` list below champion hero |
-| `src/index.css` | `champion-page__placements` spacing |
-| `src/utils/placementTitles.test.ts` | Finalize persistence test |
+| `src/components/match/RoundTitlesRecap.tsx` | `RoundTitlesRecapCore` + generalized match recap |
+| `src/components/tournament/DuelRoundTitlesRecap.tsx` | **New** — duel + tie-break round titles |
+| `src/components/tournament/TournamentBracketView.tsx` | `DuelRoundTitlesRecap` per párharc |
+| `src/pages/TournamentHistoryDetailPage.tsx` | Placement section + bracket with recaps |
+| `src/index.css` | `.bracket-duel__titles` spacing |
 
-## Champion screen flow
+## History detail layout
 
-1. Bracket completes → champion screen (trophy + name).
-2. **Helyezési címek** — every entrant with bracket-based placement label (same order as rankings).
-3. **Befejezés** → `status: completed`, `titles` saved, `activeTournamentId` cleared.
+1. Date
+2. **Bajnokság győztese**
+3. **Helyezési címek** (`tournament.titles`, or computed for older saves)
+4. **Ágrajz** — scores, totals, döntő körök, győztes, **Körönkénti címek** per duel
 
 ## Automated verification
 
@@ -48,9 +48,10 @@ Completed — 2026-05-27
 
 ## Manual smoke (recommended)
 
-- [ ] Finish a bajnokság → champion page shows all **Helyezési címek**
-- [ ] **Befejezés** → export JSON includes `tournament.titles`
-- [ ] Reload → completed tournament still has `titles` in state
+- [ ] Complete bajnokság → history → **Helyezési címek** match champion screen
+- [ ] Expand **Körönkénti címek** under a párharc in ágrajz
+- [ ] Duel with tie-break → döntő kör labeled in recap
+- [ ] Meccs history `/history/match/:id` — round recap still works
 
 ## Titles implementation phases
 
@@ -59,17 +60,16 @@ Completed — 2026-05-27
 | 0 | Context + regression gate | Done |
 | 1 | Live round titles (duel + tiebreak) | Done |
 | 2 | Elimination rankings + placement compute | Done |
-| 3 | Persist + champion UI | **Done** |
-| 4 | History recap + placement in detail | Next |
-| 5 | Docs + sign-off | Pending |
+| 3 | Persist + champion UI | Done |
+| 4 | History recap + placement in detail | **Done** |
+| 5 | Docs + sign-off | Next |
 
 ## Next phase
 
-**Titles Phase 4 — History parity**
+**Titles Phase 5 — Sign-off**
 
-- Generalize `RoundTitlesRecap` for duels
-- `DuelRoundTitlesRecap` in tournament history detail
-- Show stored `tournament.titles` on `/history/tournament/:id`
+- Update `bajnoksag-plan.md` (remove titles from out-of-scope)
+- Final build/test/lint + manual smoke checklist
 
 ## References
 
@@ -77,5 +77,5 @@ Completed — 2026-05-27
 
 ## History
 
-- 2026-05-27 — Titles Phases 0–2.
-- 2026-05-27 — Titles Phase 3: `Tournament.titles`, champion placements, finalize persist.
+- 2026-05-27 — Titles Phases 0–3.
+- 2026-05-27 — Titles Phase 4: history placement + per-duel round title recap.
