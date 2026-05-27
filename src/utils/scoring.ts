@@ -1,3 +1,7 @@
+import {
+  MAX_SCORE_PER_ROUND,
+  MIN_SCORE_PER_ROUND,
+} from '../constants/scoring';
 import type { Match, PlayerId, Round } from '../types';
 
 export interface RankingEntry {
@@ -42,6 +46,39 @@ export function areAllRoundsComplete(match: Match): boolean {
     match.rounds.length === match.roundCount &&
     match.rounds.every((round) => isRoundComplete(round))
   );
+}
+
+export function clampScoreValue(value: number): number {
+  return Math.min(
+    MAX_SCORE_PER_ROUND,
+    Math.max(MIN_SCORE_PER_ROUND, Math.round(value)),
+  );
+}
+
+export function parseScoreInput(raw: string): number | null {
+  const trimmed = raw.trim();
+  if (trimmed === '') {
+    return null;
+  }
+  const n = Number(trimmed);
+  if (!Number.isFinite(n) || !Number.isInteger(n)) {
+    return null;
+  }
+  return clampScoreValue(n);
+}
+
+export function getCurrentRoundIndex(match: Match): number {
+  const incomplete = match.rounds.find((round) => !isRoundComplete(round));
+  return incomplete?.index ?? match.roundCount;
+}
+
+export function getRoundByIndex(match: Match, index: number): Round | undefined {
+  return match.rounds.find((round) => round.index === index);
+}
+
+export function canAdvanceFromRound(match: Match, roundIndex: number): boolean {
+  const round = getRoundByIndex(match, roundIndex);
+  return round ? isRoundComplete(round) : false;
 }
 
 export function getPlayerMisses(match: Match, playerId: PlayerId): number {

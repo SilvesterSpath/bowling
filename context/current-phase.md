@@ -2,9 +2,9 @@
 
 ## Phase
 
-**Phase 7 — Buli polish** (completed)
+**Phase 8 — Party-ready polish & QA** (completed)
 
-Next: **Phase 8 — QA** ([phase-8.md](phases/phase-8.md))
+**MVP status: ready for party**
 
 ## Status
 
@@ -12,45 +12,73 @@ Completed
 
 ## Goals
 
-- [x] First-visit storage hint (dismissible, `lengoteke:v1:hint-dismissed`)
-- [x] „Mentve” indicator after successful saves (2s toast)
-- [x] Confirm before meccs elvetése and meccs befejezése
-- [x] Abandon: delete match if no scores; else complete as „(megszakítva)”
-- [x] JSON backup export + restore on Home
-- [x] `focus-visible` and disabled button styles
-- [x] Hungarian UI throughout
+- [x] Mobile layout — max-width 480px, safe areas, sticky play footer
+- [x] Large tap targets — 48px minimum
+- [x] Outdoor readability — brighter muted text, high-contrast gold/white
+- [x] Hungarian wording across all screens
+- [x] Empty states (players, history, leaderboard)
+- [x] Confirmation dialogs (delete, abandon, finalize, restore)
+- [x] Error states (save banner, field errors, invalid match)
+- [x] Active match resume on Home (**Folytatás — {name}**)
+- [x] Abandon active match flow
+- [x] **Score entry** — `RoundScoreGrid`, `RoundNavigator`, 0–10 validation, auto-save
 
-## What was built
+## MVP acceptance checklist
+
+| Requirement | Status |
+|-------------|--------|
+| Register ≥2 players, persisted after reload | Pass |
+| Start match, enter all rounds, correct totals | Pass (Anna 16, Béla 13 in QA) |
+| Leaderboard sorts correctly with ties | Pass (Phase 4) |
+| End match shows funny titles per player | Pass (Phase 5) |
+| Completed match in history | Pass (Phase 6) |
+| Active match resumable from Home | Pass |
+| Works offline (localStorage only) | Pass |
+
+## What was built in Phase 8
 
 | File | Purpose |
 |------|---------|
-| `src/components/common/StorageHintBanner.tsx` | Data loss warning |
-| `src/components/common/SaveIndicator.tsx` | Brief „Mentve” toast |
-| `src/components/common/DataBackupPanel.tsx` | Export / import JSON |
-| `src/utils/match.ts` | `abandonActiveMatch` |
-| `src/utils/scoring.ts` | `hasAnyScoresEntered`, `areAllRoundsComplete` |
-| `src/hooks/useAppState.tsx` | `lastSavedAt` tracking |
-| `src/pages/HomePage.tsx` | Hint, backup, meccs elvetése |
-| `src/pages/MatchEndPage.tsx` | Finalize confirm dialog |
-| `src/index.css` | Polish styles |
+| `src/components/match/RoundNavigator.tsx` | Kör prev/next, „N. kör / M” |
+| `src/components/match/RoundScoreGrid.tsx` | Per-player score inputs |
+| `src/pages/PlayMatchPage.tsx` | Full score entry flow |
+| `src/utils/scoring.ts` | `parseScoreInput`, `getCurrentRoundIndex`, etc. |
+| `src/index.css` | Play page, score grid, 48px touch, outdoor contrast |
 
-## Browser verification
+## Browser verification (QA session)
 
 **Dev server:** `http://localhost:5174/`
 
 | Test | Result |
 |------|--------|
-| Home | Storage hint + Biztonsági mentés panel |
-| Dismiss hint | „Értem” hides banner |
-| Backup buttons | Mentés letöltése / visszaállítása present |
-| Build | `npm run build` passes (63 modules) |
+| `/match/play` | Round 1–3 navigator, score inputs, missing highlight |
+| Score persist | Anna 8, Béla 5 saved; reload keeps values |
+| Következő kör | Advances when round complete |
+| All rounds done | „Meccs vége” link appears |
+| Leaderboard | Anna 16, Béla 13 |
+| Home | **Folytatás — QA Meccs** |
+| Build | `npm run build` passes (65 modules) |
+
+## Project summary (Phases 0–8)
+
+| Phase | Deliverable |
+|-------|-------------|
+| 0 | Vite + React + TS scaffold, router, storage |
+| 1 | AppState / localStorage layer |
+| 2 | Játékosok CRUD |
+| 3 | Új meccs creation |
+| 4 | Eredménytábla |
+| 5 | Meccs vége + vicces címek |
+| 6 | Előzmények |
+| 7 | Backup, abandon, hints, confirms |
+| 8 | Score entry + final QA |
 
 ## Notes
 
-- `phase-7.md` previously duplicated Phase 6 (history) — corrected to polish spec (history done in Phase 6).
-- Score entry on Játék page still not implemented (gap vs original master plan).
+- No backend, auth, or sync — single-phone localStorage app.
+- Run party: `npm run dev` → open on phone (same Wi‑Fi / `--host` if needed).
 
 ## History
 
-- 2026-05-27 — Phases 0–6: Full flow through Előzmények.
-- 2026-05-27 — Phase 7: Party polish, backup, abandon, confirms.
+- 2026-05-27 — Phases 0–7: Full feature set except score entry.
+- 2026-05-27 — Phase 8: Score entry, polish, MVP checklist passed.
