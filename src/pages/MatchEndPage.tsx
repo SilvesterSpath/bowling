@@ -9,7 +9,7 @@ import { useActiveMatch } from '../hooks/useActiveMatch';
 import { useAppState } from '../hooks/useAppState';
 import { pruneCompletedMatches } from '../utils/match';
 import { getRankings } from '../utils/scoring';
-import { computeTitles } from '../utils/titles';
+import { computePlacementTitles } from '../utils/placementTitles';
 
 export function MatchEndPage() {
   const navigate = useNavigate();
@@ -32,7 +32,8 @@ export function MatchEndPage() {
   );
 
   const titles = useMemo(
-    () => (activeMatch ? computeTitles(activeMatch, matchPlayers) : []),
+    () =>
+      activeMatch ? computePlacementTitles(activeMatch, matchPlayers) : [],
     [activeMatch, matchPlayers],
   );
 
@@ -46,7 +47,7 @@ export function MatchEndPage() {
   }
 
   const handleFinalize = () => {
-    const computedTitles = computeTitles(activeMatch, matchPlayers);
+    const computedTitles = computePlacementTitles(activeMatch, matchPlayers);
     const completedAt = new Date().toISOString();
 
     const result = update((prev) => {
@@ -81,7 +82,7 @@ export function MatchEndPage() {
         backTo='/match/leaderboard'
         backLabel='Eredménytábla'
       />
-      <p className='match-end__intro'>Szilveszter Cup — vicces címek</p>
+      <p className='match-end__intro'>Szilveszter Cup — helyezési címek</p>
 
       <section className='match-end__section'>
         <h2 className='match-end__heading'>Végeredmény</h2>
@@ -89,7 +90,7 @@ export function MatchEndPage() {
       </section>
 
       <section className='match-end__section'>
-        <h2 className='match-end__heading'>Címek</h2>
+        <h2 className='match-end__heading'>Helyezési címek</h2>
         <div className='title-card-list'>
           {titles.map((title) => {
             const player = playersById.get(title.playerId);
