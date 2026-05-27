@@ -17,6 +17,7 @@ import { createId } from './ids';
 import {
   createEmptyRounds,
   isRoundComplete,
+  type RankingEntry,
 } from './scoring';
 
 export interface BuildFirstBracketRoundOptions {
@@ -303,6 +304,59 @@ export function getEliminatedPlayerIds(tournament: Tournament): Set<PlayerId> {
     }
   }
   return eliminated;
+}
+
+/** First placement rank assigned to losers eliminated in this bracket round. */
+export function eliminationRankForBracketRound(
+  round: TournamentBracketRound,
+): number {
+  const poolSize = round.duels.length * 2 + (round.byePlayerId ? 1 : 0);
+  return poolSize - round.duels.length + 1;
+}
+
+/**
+ * Final standings from single-elimination bracket (not pin totals).
+ * Losers in the same round share the same rank band.
+ */
+export function getTournamentEliminationRankings(
+  tournament: Tournament,
+): RankingEntry[] {
+  const rankByPlayer = new Map<PlayerId, number>();
+
+  if (tournament.championId) {
+    rankByPlayer.set(tournament.championId, 1);
+  }
+
+  for (const round of tournament.bracketRounds) {
+    const eliminationRank = eliminationRankForBracketRound(round);
+    for (const duel of round.duels) {
+      if (duel.status !== 'completed' || !duel.winnerId) {
+        continue;
+      }
+      const loser =
+        duel.winnerId === duel.playerAId ? duel.playerBId : duel.playerAId;
+      if (!rankByPlayer.has(loser)) {
+        rankByPlayer.set(loser, eliminationRank);
+      }
+    }
+  }
+
+  const playerOrder = new Map(
+    tournament.playerIds.map((id, index) => [id, index]),
+  );
+
+  return [...rankByPlayer.entries()]
+    .map(([playerId, rank]) => ({
+      playerId,
+      total: 0,
+      misses: 0,
+      rank,
+    }))
+    .sort(
+      (a, b) =>
+        a.rank - b.rank ||
+        (playerOrder.get(a.playerId) ?? 0) - (playerOrder.get(b.playerId) ?? 0),
+    );
 }
 
 export function getRemainingContenderIds(

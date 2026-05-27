@@ -5,7 +5,9 @@ import {
   buildFirstBracketRound,
   compareMainDuelTotals,
   createTournament,
+  eliminationRankForBracketRound,
   getRoundLabel,
+  getTournamentEliminationRankings,
   resolveDuelWinner,
 } from './tournament';
 import { createEmptyRounds, isRoundComplete } from './scoring';
@@ -213,6 +215,116 @@ describe('advanceBracket', () => {
     expect(round2?.byePlayerId).toBeUndefined();
     expect(round2?.duels[0].playerAId).toBe('a');
     expect(round2?.duels[0].playerBId).toBe('c');
+  });
+});
+
+function tournamentAtChampion(
+  playerIds: string[],
+  roundWinnerIds: string[][],
+) {
+  let tournament = createTournament({
+    name: 'Rank test',
+    playerIds,
+    roundsPerDuel: 1,
+    shuffle: false,
+  });
+
+  for (const winners of roundWinnerIds) {
+    const round = tournament.bracketRounds.find(
+      (r) => r.index === tournament.currentRoundIndex,
+    );
+    if (!round) {
+      throw new Error('missing round');
+    }
+    const duels = round.duels.map((duel, index) =>
+      completeDuelMain(duel, winners[index]),
+    );
+    tournament = {
+      ...tournament,
+      bracketRounds: tournament.bracketRounds.map((r) =>
+        r.index === round.index ? { ...r, duels } : r,
+      ),
+    };
+    const result = advanceBracket(tournament);
+    if (result.type === 'champion') {
+      return {
+        ...result.tournament,
+        championId: result.championId,
+        status: 'completed' as const,
+      };
+    }
+    if (result.type !== 'advanced') {
+      throw new Error('expected advance');
+    }
+    tournament = result.tournament;
+  }
+
+  throw new Error('expected champion');
+}
+
+function rankByPlayerId(tournament: ReturnType<typeof tournamentAtChampion>) {
+  return new Map(
+    getTournamentEliminationRankings(tournament).map((entry) => [
+      entry.playerId,
+      entry.rank,
+    ]),
+  );
+}
+
+describe('getTournamentEliminationRankings', () => {
+  it('eliminationRankForBracketRound: pool bands', () => {
+    const fourPool = buildFirstBracketRound(['a', 'b', 'c', 'd'], {
+      shuffle: false,
+      roundsPerDuel: 1,
+    });
+    expect(eliminationRankForBracketRound(fourPool)).toBe(3);
+
+    const threePool = buildFirstBracketRound(['a', 'b', 'c'], {
+      shuffle: false,
+      roundsPerDuel: 1,
+    });
+    expect(eliminationRankForBracketRound(threePool)).toBe(3);
+  });
+
+  it('2 players: winner 1, loser 2', () => {
+    const tournament = tournamentAtChampion(['a', 'b'], [['a']]);
+    const ranks = rankByPlayerId(tournament);
+    expect(ranks.get('a')).toBe(1);
+    expect(ranks.get('b')).toBe(2);
+  });
+
+  it('4 players: semi losers tie at 3, finalist 2', () => {
+    const tournament = tournamentAtChampion(['a', 'b', 'c', 'd'], [
+      ['a', 'c'],
+      ['a'],
+    ]);
+    const ranks = rankByPlayerId(tournament);
+    expect(ranks.get('a')).toBe(1);
+    expect(ranks.get('c')).toBe(2);
+    expect(ranks.get('b')).toBe(3);
+    expect(ranks.get('d')).toBe(3);
+  });
+
+  it('3 players with bye: first out 3, finalist 2', () => {
+    const tournament = tournamentAtChampion(['a', 'b', 'c'], [['a'], ['a']]);
+    const ranks = rankByPlayerId(tournament);
+    expect(ranks.get('a')).toBe(1);
+    expect(ranks.get('c')).toBe(2);
+    expect(ranks.get('b')).toBe(3);
+  });
+
+  it('5 players: first-round losers 4, semi loser 3', () => {
+    const tournament = tournamentAtChampion(['a', 'b', 'c', 'd', 'e'], [
+      ['a', 'c'],
+      ['a'],
+      ['a'],
+    ]);
+    const ranks = rankByPlayerId(tournament);
+    expect(ranks.get('a')).toBe(1);
+    expect(ranks.get('e')).toBe(2);
+    expect(ranks.get('c')).toBe(3);
+    expect(ranks.get('b')).toBe(4);
+    expect(ranks.get('d')).toBe(4);
   });
 });
 

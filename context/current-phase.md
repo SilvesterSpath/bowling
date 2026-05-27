@@ -2,9 +2,9 @@
 
 ## Phase
 
-**Bajnokság titles — Phase 1** (completed)
+**Bajnokság titles — Phase 2** (completed)
 
-Live per-round funny + descriptive subtitles in párharc and döntő kör scoring.
+Bracket elimination rankings and placement title computation (data layer only — no UI yet).
 
 ## Status
 
@@ -12,70 +12,75 @@ Completed — 2026-05-27
 
 **Branch:** `feature/bajnoksag-titles`
 
-## Goals (Titles Phase 1)
+## Goals (Titles Phase 2)
 
-- [x] `src/hooks/useRoundTitleDisplayMap.ts` — wraps `computeRoundTitles` + `toRoundTitleDisplayMap`
-- [x] `PlayMatchPage` refactored to hook (Meccs behavior unchanged)
-- [x] `TournamentDuelPage` — titles on viewed main round; `roundIndex` resets when `duel.id` changes
-- [x] `TournamentTiebreakPage` — titles on active döntő kör; `roundIndex = roundsPerDuel + tieBreakIndex + 1`
-- [x] Player order `[playerAId, playerBId]` (matches `createDuel`)
-- [x] `npm run build` + `npm run test` (17/17) + `npm run lint` (clean)
+- [x] `eliminationRankForBracketRound` + `getTournamentEliminationRankings(tournament)`
+- [x] `computeTournamentPlacementTitles(tournament)` in `placementTitles.ts`
+- [x] Shared `labelForRank` for match + tournament (Meccs `computePlacementTitles` unchanged)
+- [x] Unit tests: 2 / 3 / 4 / 5 player elimination ranks
+- [x] `placementTitles.test.ts` — match regression + tournament label mapping
+- [x] `npm run build` + `npm run test` (24/24) + `npm run lint` (clean)
+
+## Ranking rules
+
+For each completed duel, the **loser** gets a rank from that bracket round’s pool:
+
+- `poolSize = duels.length × 2 + (bye ? 1 : 0)`
+- `eliminationRank = poolSize - duels.length + 1`
+- `championId` → rank **1**
+- Losers in the same round share the same rank (e.g. 4-player semi losers both rank 3)
 
 ## What was built
 
 | File | Change |
 |------|--------|
-| `src/hooks/useRoundTitleDisplayMap.ts` | **New** shared hook for live round titles |
-| `src/pages/PlayMatchPage.tsx` | Uses hook instead of inline `useMemo` |
-| `src/pages/TournamentDuelPage.tsx` | Hook + duel-id sync for navigator round |
-| `src/pages/TournamentTiebreakPage.tsx` | Hook; hooks called before early returns |
-
-## Behavior
-
-- Titles appear only when the current round is complete (same as Meccs).
-- Tie-break uses a higher synthetic `roundIndex` so repeated döntő körök get varied funny lines.
-- No changes to `roundTitles.ts` classification logic.
+| `src/utils/tournament.ts` | `eliminationRankForBracketRound`, `getTournamentEliminationRankings` |
+| `src/utils/placementTitles.ts` | `computeTournamentPlacementTitles` |
+| `src/utils/tournament.test.ts` | +5 tests for elimination rankings |
+| `src/utils/placementTitles.test.ts` | **New** — Meccs + tournament placement labels |
 
 ## Automated verification
 
 | Check | Result |
 |-------|--------|
 | `npm run build` | Pass |
-| `npm run test` | 17/17 pass |
+| `npm run test` | 24/24 pass |
 | `npm run lint` | Pass |
 
-## Manual smoke (recommended)
+## Example ranks (verified in tests)
 
-- [ ] Bajnokság párharc: fill both scores in a kör → funny + gap lines under names
-- [ ] Navigate prev/next kör → titles update per viewed round
-- [ ] Tie-break after döntetlen → titles on döntő kör when complete
-- [ ] Meccs `/match/play` still shows round titles
+| Players | Champion | 2nd | 3rd / tied |
+|---------|----------|-----|------------|
+| 2 | a | b | — |
+| 3 (bye) | a | c | b |
+| 4 | a | c | b, d (tied) |
+| 5 | a | e | c; b, d (tied 4th) |
 
 ## Titles implementation phases
 
 | Phase | Deliverable | Status |
 |-------|-------------|--------|
 | 0 | Context + regression gate | Done |
-| 1 | Live round titles (duel + tiebreak) | **Done** |
-| 2 | Elimination rankings + placement compute | Next |
-| 3 | `Tournament.titles` + champion UI | Pending |
+| 1 | Live round titles (duel + tiebreak) | Done |
+| 2 | Elimination rankings + placement compute | **Done** |
+| 3 | `Tournament.titles` + champion UI | Next |
 | 4 | History recap + placement in detail | Pending |
 | 5 | Docs + sign-off | Pending |
 
 ## Next phase
 
-**Titles Phase 2 — Placement data layer**
+**Titles Phase 3 — Champion screen + persist**
 
-- `getTournamentEliminationRankings(tournament)`
-- `computeTournamentPlacementTitles(tournament)`
-- Unit tests (2 / 3 / 4 / 5 players)
+- `titles?: PlayerTitle[]` on `Tournament`
+- `loadState` normalize
+- `finalizeActiveTournament` stores titles
+- `TournamentChampionPage` — **Helyezési címek** for all entrants
 
 ## References
 
-- [bajnoksag-plan.md](../bajnoksag-plan.md)
 - Cursor plan: `bajnokság_funny_titles_31e0fae8.plan.md`
 
 ## History
 
-- 2026-05-27 — Titles Phase 0: branch + baseline verification.
-- 2026-05-27 — Titles Phase 1: `useRoundTitleDisplayMap` + duel/tiebreak wiring.
+- 2026-05-27 — Titles Phase 0–1.
+- 2026-05-27 — Titles Phase 2: elimination rankings + `computeTournamentPlacementTitles`.

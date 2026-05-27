@@ -3,8 +3,9 @@ import {
   PLACEMENT_TITLE_DEFAULT,
   PLACEMENT_TITLE_LAST,
 } from '../constants/placementTitles';
-import type { Match, PlayerTitle } from '../types';
+import type { Match, PlayerTitle, Tournament } from '../types';
 import { getRankings } from './scoring';
+import { getTournamentEliminationRankings } from './tournament';
 
 const LEGACY_FINALE_TITLE_KEYS = new Set([
   'champion',
@@ -71,6 +72,27 @@ export function computePlacementTitles(match: Match): PlayerTitle[] {
     1,
   );
   const playerCount = match.playerIds.length;
+
+  return rankings.map((entry) => {
+    const { key, label } = labelForRank(entry.rank, lastRank, playerCount);
+    return {
+      playerId: entry.playerId,
+      key,
+      label,
+    };
+  });
+}
+
+/** End-of-tournament titles from bracket elimination order (all ranked entrants). */
+export function computeTournamentPlacementTitles(
+  tournament: Tournament,
+): PlayerTitle[] {
+  const rankings = getTournamentEliminationRankings(tournament);
+  const lastRank = rankings.reduce(
+    (max, entry) => Math.max(max, entry.rank),
+    1,
+  );
+  const playerCount = tournament.playerIds.length;
 
   return rankings.map((entry) => {
     const { key, label } = labelForRank(entry.rank, lastRank, playerCount);
