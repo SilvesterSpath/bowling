@@ -1,6 +1,7 @@
 import type { Player, Round, RoundTitleDisplay } from '../../types';
 import { displayName } from '../../utils/format';
 import { PlayerNameWithTitle } from './PlayerNameWithTitle';
+import { ScoreStepperInput } from './ScoreStepperInput';
 
 interface RoundScoreGridProps {
   round: Round;
@@ -35,21 +36,11 @@ export function RoundScoreGrid({
                 subtitle={titlesByPlayerId.get(player.id)?.descriptive}
               />
             </label>
-            <input
+            <ScoreStepperInput
               id={`score-${player.id}`}
-              className="input score-grid__input"
-              type="number"
-              inputMode="numeric"
-              min={0}
-              max={10}
-              placeholder="—"
-              value={
-                entry?.score === null || entry?.score === undefined
-                  ? ''
-                  : entry.score
-              }
-              onChange={(event) => onScoreChange(player.id, event.target.value)}
-              aria-invalid={missing}
+              value={entry?.score}
+              onChange={(raw) => onScoreChange(player.id, raw)}
+              invalid={missing}
             />
           </li>
         );

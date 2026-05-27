@@ -887,8 +887,8 @@ fieldset.match-setup__section > .match-setup__hint {
 
 .score-grid__row {
   display: grid;
-  grid-template-columns: 1fr minmax(5rem, 6rem);
-  align-items: center;
+  grid-template-columns: 1fr minmax(8.5rem, 10rem);
+  align-items: stretch;
   gap: var(--space-md);
   padding: var(--space-md);
   background: var(--color-surface);
@@ -951,6 +951,77 @@ fieldset.match-setup__section > .match-setup__hint {
   font-size: 1.5rem;
   font-weight: 700;
   padding: var(--space-sm);
+}
+
+.score-stepper {
+  display: flex;
+  align-items: stretch;
+  min-height: calc(var(--touch-min) * 2);
+  width: 100%;
+}
+
+.score-stepper__input {
+  flex: 1;
+  min-width: 0;
+  min-height: 100%;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right: none;
+  -moz-appearance: textfield;
+}
+
+.score-stepper__input::-webkit-outer-spin-button,
+.score-stepper__input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.score-stepper__controls {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: var(--touch-min);
+  border: 2px solid var(--color-border);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  overflow: hidden;
+  background: var(--color-surface-2);
+}
+
+.score-stepper__btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--touch-min);
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  font-family: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.score-stepper__btn--up {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.score-stepper__btn:active:not(:disabled) {
+  background: var(--color-gold);
+  color: var(--color-bg);
+}
+
+.score-stepper__btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.score-stepper__icon {
+  font-size: 1.35rem;
+  line-height: 1;
+  font-weight: 700;
 }
 
 .storage-hint {
@@ -1200,6 +1271,10 @@ fieldset.match-setup__section > .match-setup__hint {
 .app-shell--compact .score-grid__input {
   font-size: 1.35rem;
   padding: var(--space-xs) var(--space-sm);
+}
+
+.app-shell--compact .score-stepper__icon {
+  font-size: 1.2rem;
 }
 
 .app-shell--compact .play-page__footer {
