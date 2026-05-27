@@ -2,23 +2,24 @@
 
 ## Phase
 
-**Bajnokság Phase 6 — QA and backup** (completed)
+**Bajnokság titles — Phase 0** (completed)
 
-**Bajnokság v1 is complete** (Phases 0–6). Meccs MVP (Phases 0–8) remains the base app.
+Context sign-off before implementing funny round titles + tournament placement titles. Builds on **Bajnokság v1** (Phases 0–6) and **Meccs MVP** (Phases 0–8).
 
 ## Status
 
 Completed — 2026-05-27
 
-## Goals (Phase 6)
+**Branch:** `feature/bajnoksag-titles`
 
-- [x] Unit tests: migration v1→v2, `getHistoryEntries`, 4/5-player brackets
+## Goals (Titles Phase 0)
+
+- [x] On feature branch `feature/bajnoksag-titles` (from `main`)
 - [x] `npm run build` + `npm run test` (17/17) + `npm run lint` (clean)
-- [x] Meccs regression review (no play/end/history logic regressions)
-- [x] Backup/migration verified via tests + `DataBackupPanel` path
-- [x] Tie-break flow polish (append round before tiebreak navigate)
-- [x] Lint fixes: `SaveIndicator`, `loadState`, `placementTitles`, tiebreak page
-- [x] QA report: [bajnoksag-phase6-qa.md](../bajnoksag-phase6-qa.md)
+- [x] Meccs title paths verified unchanged (play, leaderboard, end, history)
+- [x] Bajnokság gap documented (empty title maps on duel/tiebreak; no `tournament.titles`)
+- [x] Scope confirmed with product owner: per-round funny + all-entrant placement at bajnokság end
+- [x] Constraints recorded (reuse `roundTitles.ts`, no Meccs behavior change)
 
 ## Automated verification
 
@@ -27,54 +28,86 @@ Completed — 2026-05-27
 | `npm run build` | Pass |
 | `npm run test` | 17/17 pass |
 | `npm run lint` | Pass |
+| Branch | `feature/bajnoksag-titles` |
 
-### New / extended tests
+## Meccs baseline (must not regress)
 
-| File | Coverage |
-|------|----------|
-| `src/storage/migrate.test.ts` | v1→v2, v2 pass-through, invalid payload |
-| `src/utils/history.test.ts` | merged history sort, labels, active excluded |
-| `src/utils/tournament.test.ts` | +4/5 player bracket pairing; existing bye/champion/tie-break |
+| Path | Round funny titles | Placement titles |
+|------|-------------------|------------------|
+| `/match/play` | `computeRoundTitles` → `RoundScoreGrid` | — |
+| `/match/leaderboard` | Latest complete round | — |
+| `/match/end` | `RoundTitlesRecap` | `computePlacementTitles` → stored on `match.titles` |
+| `/history/match/:id` | `RoundTitlesRecap` in `HistoryDetail` | Stored `match.titles` |
 
-## Code changes (Phase 6)
+**Phase 0 rule:** Do not edit `roundTitles.ts` classification logic or `MatchEndPage` finalize behavior during titles work.
 
-| Area | Change |
-|------|--------|
-| `SaveIndicator` | CSS fade via `key={lastSavedAt}` (no effect setState) |
-| `TournamentDuelPage` | Append first döntő kör before navigating to tiebreak |
-| `TournamentTiebreakPage` | Removed mount `useEffect`; redirect if no open tie-break round |
-| `loadState` | `const` for normalized active session ids |
-| `placementTitles` | `computePlacementTitles(match)` — unused `players` param removed |
+## Bajnokság gap (what Phases 1–5 will fill)
 
-## Manual smoke (recommended)
+| Area | Today | Target |
+|------|--------|--------|
+| `TournamentDuelPage` | `titlesByPlayerId={new Map()}` | Live funny + gap subtitles per kör |
+| `TournamentTiebreakPage` | `titlesByPlayerId={new Map()}` | Same for döntő kör |
+| `TournamentChampionPage` | Champion hero only | **Helyezési címek** for all entrants |
+| `Tournament` type | No `titles` field | Optional `titles?: PlayerTitle[]` on finalize |
+| `TournamentHistoryDetailPage` | Ágrajz only | Placement block + per-duel round title recap |
 
-See checklist in [bajnoksag-phase6-qa.md](../bajnoksag-phase6-qa.md):
+## Confirmed scope (titles feature)
 
-- Meccs full flow + history badge
-- Bajnokság 3 / 4 / 5 players, bye, döntő kör repeat
-- Backup export/import with `tournaments` in JSON
-- Session exclusivity (one active meccs OR bajnokság)
+**In scope**
 
-## Bajnokság feature summary (Phases 0–6)
+- Per-round funny titles in párharc + döntő kör (reuse `computeRoundTitles`)
+- Bracket elimination rankings → placement labels for every entrant
+- Persist `tournament.titles` on finalize (like Meccs `match.titles`)
+- History detail parity
+
+**Out of scope**
+
+- Per-duel placement screen between párharc and hub
+- Duel hub leaderboard route
+- Pin-total rankings across the whole tournament
+- Changes to Hungarian variant tables in `constants/roundTitles.ts`
+
+## Titles implementation phases
+
+| Phase | Deliverable | Status |
+|-------|-------------|--------|
+| 0 | Context + regression gate | **Done** |
+| 1 | `useRoundTitleDisplayMap` + duel/tiebreak pages | Next |
+| 2 | `getTournamentEliminationRankings` + `computeTournamentPlacementTitles` | Pending |
+| 3 | `Tournament.titles` + champion **Helyezési címek** | Pending |
+| 4 | History recap + placement in detail | Pending |
+| 5 | Docs + full sign-off | Pending |
+
+## Next phase
+
+**Titles Phase 1 — Live round titles**
+
+- Add `src/hooks/useRoundTitleDisplayMap.ts`
+- Refactor `PlayMatchPage` to use hook (no behavior change)
+- Wire `TournamentDuelPage` + `TournamentTiebreakPage`
+- Sync `roundIndex` when `duel.id` changes
+
+## References
+
+- [bajnoksag-plan.md](../bajnoksag-plan.md) — v1 spec (line 397 deferred titles; superseded by titles plan)
+- [bajnoksag-phase0-review.md](../bajnoksag-phase0-review.md) — original Meccs stability review
+- [bajnoksag-phase6-qa.md](../bajnoksag-phase6-qa.md) — v1 QA sign-off
+- Cursor plan: `bajnokság_funny_titles_31e0fae8.plan.md` (phases 0–5)
+
+## Bajnokság v1 summary (unchanged)
 
 | Phase | Deliverable |
 |-------|-------------|
 | 0 | Meccs stability review |
-| 1 | Schema v2, tournament utils, tests |
+| 1 | Schema v2, tournament utils |
 | 2 | Setup, home, hub |
-| 3 | Duel + tie-break scoring |
-| 4 | Champion screen + finalize |
-| 5 | Unified Előzmények + ágrajz |
-| 6 | QA, backup tests, lint, sign-off |
-
-## References
-
-- [bajnoksag-plan.md](../bajnoksag-plan.md)
-- [bajnoksag-phase6-qa.md](../bajnoksag-phase6-qa.md)
-- [bajnoksag-phase0-review.md](../bajnoksag-phase0-review.md)
+| 3 | Duel + tie-break |
+| 4 | Champion + finalize |
+| 5 | Unified Előzmények |
+| 6 | QA, backup, lint |
 
 ## History
 
 - 2026-05-27 — MVP Meccs Phases 0–8.
-- 2026-05-27 — Bajnokság Phases 0–5.
-- 2026-05-27 — Bajnokság Phase 6: QA, tests, lint, v1 sign-off.
+- 2026-05-27 — Bajnokság v1 Phases 0–6.
+- 2026-05-27 — Titles Phase 0: branch + baseline verification, scope sign-off.
