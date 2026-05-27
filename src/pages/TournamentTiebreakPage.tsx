@@ -66,19 +66,19 @@ export function TournamentTiebreakPage() {
   }, [tournament, duel, ensuredRound, update]);
 
   if (!tournament || !duel) {
-    return <Navigate to="/tournament" replace />;
+    return <Navigate to='/tournament' replace />;
   }
 
   if (duel.status === 'completed') {
-    return <Navigate to="/tournament" replace />;
+    return <Navigate to='/tournament' replace />;
   }
 
   if (!isDuelMainComplete(duel, tournament.roundsPerDuel)) {
-    return <Navigate to="/tournament/duel" replace />;
+    return <Navigate to='/tournament/duel' replace />;
   }
 
   if (!needsTieBreak(duel, tournament.roundsPerDuel)) {
-    return <Navigate to="/tournament/duel" replace />;
+    return <Navigate to='/tournament/duel' replace />;
   }
 
   const tieBreakEntry = getIncompleteTieBreakRound(duel);
@@ -86,7 +86,7 @@ export function TournamentTiebreakPage() {
     if (!ensuredRound) {
       return null;
     }
-    return <Navigate to="/tournament/duel" replace />;
+    return <Navigate to='/tournament/duel' replace />;
   }
 
   const { round: tieBreakRound, index: tieBreakIndex } = tieBreakEntry;
@@ -94,8 +94,7 @@ export function TournamentTiebreakPage() {
 
   const players = sortPlayersByName(
     state.players.filter(
-      (player) =>
-        player.id === duel.playerAId || player.id === duel.playerBId,
+      (player) => player.id === duel.playerAId || player.id === duel.playerBId,
     ),
   );
 
@@ -104,11 +103,11 @@ export function TournamentTiebreakPage() {
   const mainTotals = getDuelMainTotals(duel);
   const roundComplete = isRoundComplete(tieBreakRound);
 
-  const persistDuel = (updater: (current: TournamentDuel) => TournamentDuel) => {
+  const persistDuel = (
+    updater: (current: TournamentDuel) => TournamentDuel,
+  ) => {
     return update((prev) =>
-      updateActiveTournament(prev, (t) =>
-        updateDuelById(t, duel.id, updater),
-      ),
+      updateActiveTournament(prev, (t) => updateDuelById(t, duel.id, updater)),
     );
   };
 
@@ -157,19 +156,19 @@ export function TournamentTiebreakPage() {
   return (
     <AppShell compact>
       <PageHeader
-        title="Döntő kör"
-        backTo="/tournament/duel"
-        backLabel="Párharc"
+        title='Döntő kör'
+        backTo='/tournament/duel'
+        backLabel='Párharc'
       />
-      <p className="play-page__match-name tiebreak-page__intro">
+      <p className='play-page__match-name tiebreak-page__intro'>
         Döntetlen az összpontban — döntő kör!
       </p>
-      <p className="tiebreak-page__context" role="status">
+      <p className='tiebreak-page__context' role='status'>
         {playerA && playerB
           ? `${displayName(playerA)} ${mainTotals.totalA} : ${mainTotals.totalB} ${displayName(playerB)}`
           : null}
       </p>
-      <p className="play-page__hint" role="status">
+      <p className='play-page__hint' role='status'>
         Döntő kör {playoffNumber} — töltsd ki mindkét játékos pontszámát (0–10).
       </p>
 
@@ -180,10 +179,10 @@ export function TournamentTiebreakPage() {
         onScoreChange={handleScoreChange}
       />
 
-      <footer className="play-page__footer">
+      <footer className='play-page__footer'>
         <button
-          type="button"
-          className="btn btn--primary btn--block"
+          type='button'
+          className='btn btn--primary btn--block'
           disabled={!roundComplete}
           onClick={handleFinishPlayoff}
         >

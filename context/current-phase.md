@@ -23,32 +23,32 @@ Completed — 2026-05-27
 
 ## What was built
 
-| File | Purpose |
-|------|---------|
-| `src/utils/history.ts` | `HistoryEntry`, `getHistoryEntries`, `getTournamentById`, champion label |
-| `src/components/history/HistoryList.tsx` | Unified cards + badges |
-| `src/components/tournament/TournamentBracketView.tsx` | Read-only ágrajz |
-| `src/pages/HistoryPage.tsx` | List only |
-| `src/pages/HistoryMatchPage.tsx` | Meccs detail (extracted) |
-| `src/pages/TournamentHistoryDetailPage.tsx` | Bajnokság detail |
-| `src/pages/HistoryLegacyRedirect.tsx` | Old `/history/:id` URLs |
-| `src/App.tsx` | Split history routes |
-| `src/index.css` | Badges, bracket, champion block styles |
+| File                                                  | Purpose                                                                  |
+| ----------------------------------------------------- | ------------------------------------------------------------------------ |
+| `src/utils/history.ts`                                | `HistoryEntry`, `getHistoryEntries`, `getTournamentById`, champion label |
+| `src/components/history/HistoryList.tsx`              | Unified cards + badges                                                   |
+| `src/components/tournament/TournamentBracketView.tsx` | Read-only ágrajz                                                         |
+| `src/pages/HistoryPage.tsx`                           | List only                                                                |
+| `src/pages/HistoryMatchPage.tsx`                      | Meccs detail (extracted)                                                 |
+| `src/pages/TournamentHistoryDetailPage.tsx`           | Bajnokság detail                                                         |
+| `src/pages/HistoryLegacyRedirect.tsx`                 | Old `/history/:id` URLs                                                  |
+| `src/App.tsx`                                         | Split history routes                                                     |
+| `src/index.css`                                       | Badges, bracket, champion block styles                                   |
 
 ## Routes
 
-| Route | Screen |
-|-------|--------|
-| `/history` | Unified list |
-| `/history/match/:matchId` | Meccs részletei (`HistoryDetail`) |
-| `/history/tournament/:tournamentId` | Bajnokság ágrajz |
-| `/history/:legacyId` | Redirect to match or tournament detail |
+| Route                               | Screen                                 |
+| ----------------------------------- | -------------------------------------- |
+| `/history`                          | Unified list                           |
+| `/history/match/:matchId`           | Meccs részletei (`HistoryDetail`)      |
+| `/history/tournament/:tournamentId` | Bajnokság ágrajz                       |
+| `/history/:legacyId`                | Redirect to match or tournament detail |
 
 ## History list cards
 
-| Kind | Badge | Meta line |
-|------|-------|-----------|
-| Meccs | **Meccs** | `{n} játékos · {k} kör` + Győztes |
+| Kind      | Badge         | Meta line                                   |
+| --------- | ------------- | ------------------------------------------- |
+| Meccs     | **Meccs**     | `{n} játékos · {k} kör` + Győztes           |
 | Bajnokság | **Bajnokság** | `{n} játékos · {szakasz} szakasz` + Győztes |
 
 Sorted by `completedAt` (newest first).
@@ -62,12 +62,12 @@ Sorted by `completedAt` (newest first).
 
 ## Verification
 
-| Check | Result |
-|-------|--------|
-| `npm run build` | Pass |
-| `npm run test` | 8/8 pass |
-| Meccs detail | Same `HistoryDetail` component |
-| Backup JSON | Already includes `tournaments` from schema v2 |
+| Check           | Result                                        |
+| --------------- | --------------------------------------------- |
+| `npm run build` | Pass                                          |
+| `npm run test`  | 8/8 pass                                      |
+| Meccs detail    | Same `HistoryDetail` component                |
+| Backup JSON     | Already includes `tournaments` from schema v2 |
 
 ## Manual smoke test (recommended)
 
@@ -88,13 +88,13 @@ Sorted by `completedAt` (newest first).
 
 ## Bajnokság feature summary (Phases 1–5)
 
-| Phase | Deliverable |
-|-------|-------------|
-| 1 | Schema v2, tournament utils, tests |
-| 2 | Setup, home, hub |
-| 3 | Duel + tie-break scoring |
-| 4 | Champion screen + finalize |
-| 5 | Unified Előzmények |
+| Phase | Deliverable                        |
+| ----- | ---------------------------------- |
+| 1     | Schema v2, tournament utils, tests |
+| 2     | Setup, home, hub                   |
+| 3     | Duel + tie-break scoring           |
+| 4     | Champion screen + finalize         |
+| 5     | Unified Előzmények                 |
 
 ## References
 

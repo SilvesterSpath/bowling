@@ -14,8 +14,7 @@ function completeDuelMain(
   duel: TournamentDuel,
   winnerId: string,
 ): TournamentDuel {
-  const loserId =
-    duel.playerAId === winnerId ? duel.playerBId : duel.playerAId;
+  const loserId = duel.playerAId === winnerId ? duel.playerBId : duel.playerAId;
   const rounds = duel.rounds.map((round, index) => ({
     ...round,
     scores: round.scores.map((entry) => ({
@@ -147,18 +146,18 @@ describe('advanceBracket', () => {
     if (result.type === 'advanced') {
       tournament = result.tournament;
       expect(tournament.currentRoundIndex).toBe(2);
-      expect(
-        tournament.bracketRounds.find((r) => r.index === 2)?.label,
-      ).toBe('Elődöntő');
+      expect(tournament.bracketRounds.find((r) => r.index === 2)?.label).toBe(
+        'Elődöntő',
+      );
     }
 
     result = completeRound(['p1', 'p5']);
     expect(result.type).toBe('advanced');
     if (result.type === 'advanced') {
       tournament = result.tournament;
-      expect(
-        tournament.bracketRounds.find((r) => r.index === 3)?.label,
-      ).toBe('Döntő');
+      expect(tournament.bracketRounds.find((r) => r.index === 3)?.label).toBe(
+        'Döntő',
+      );
     }
 
     result = completeRound(['p1']);

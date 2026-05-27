@@ -19,7 +19,7 @@ export function SaveIndicator() {
   }
 
   return (
-    <div className="save-indicator" role="status" aria-live="polite">
+    <div className='save-indicator' role='status' aria-live='polite'>
       Mentve
     </div>
   );

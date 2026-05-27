@@ -52,21 +52,20 @@ export function TournamentDuelPage() {
   );
 
   if (!tournament || !duel) {
-    return <Navigate to="/tournament" replace />;
+    return <Navigate to='/tournament' replace />;
   }
 
   if (duel.status === 'completed') {
-    return <Navigate to="/tournament" replace />;
+    return <Navigate to='/tournament' replace />;
   }
 
   if (needsTieBreak(duel, tournament.roundsPerDuel)) {
-    return <Navigate to="/tournament/duel/tiebreak" replace />;
+    return <Navigate to='/tournament/duel/tiebreak' replace />;
   }
 
   const players = sortPlayersByName(
     state.players.filter(
-      (player) =>
-        player.id === duel.playerAId || player.id === duel.playerBId,
+      (player) => player.id === duel.playerAId || player.id === duel.playerBId,
     ),
   );
 
@@ -77,11 +76,11 @@ export function TournamentDuelPage() {
   const playerA = players.find((p) => p.id === duel.playerAId);
   const playerB = players.find((p) => p.id === duel.playerBId);
 
-  const persistDuel = (updater: (current: TournamentDuel) => TournamentDuel) => {
+  const persistDuel = (
+    updater: (current: TournamentDuel) => TournamentDuel,
+  ) => {
     return update((prev) =>
-      updateActiveTournament(prev, (t) =>
-        updateDuelById(t, duel.id, updater),
-      ),
+      updateActiveTournament(prev, (t) => updateDuelById(t, duel.id, updater)),
     );
   };
 
@@ -125,17 +124,13 @@ export function TournamentDuelPage() {
   };
 
   if (!round) {
-    return <Navigate to="/tournament" replace />;
+    return <Navigate to='/tournament' replace />;
   }
 
   return (
     <AppShell compact>
-      <PageHeader
-        title="Párharc"
-        backTo="/tournament"
-        backLabel="Bajnokság"
-      />
-      <p className="play-page__match-name">
+      <PageHeader title='Párharc' backTo='/tournament' backLabel='Bajnokság' />
+      <p className='play-page__match-name'>
         {playerA && playerB
           ? `${displayName(playerA)} vs ${displayName(playerB)}`
           : 'Párharc'}
@@ -146,14 +141,12 @@ export function TournamentDuelPage() {
         roundCount={tournament.roundsPerDuel}
         onPrev={() => setRoundIndex((prev) => Math.max(1, prev - 1))}
         onNext={() =>
-          setRoundIndex((prev) =>
-            Math.min(tournament.roundsPerDuel, prev + 1),
-          )
+          setRoundIndex((prev) => Math.min(tournament.roundsPerDuel, prev + 1))
         }
       />
 
       {!roundComplete ? (
-        <p className="play-page__hint" role="status">
+        <p className='play-page__hint' role='status'>
           Töltsd ki minden játékos pontszámát (0–10).
         </p>
       ) : null}
@@ -165,17 +158,16 @@ export function TournamentDuelPage() {
         onScoreChange={handleScoreChange}
       />
 
-      <footer className="play-page__footer">
+      <footer className='play-page__footer'>
         {allMainComplete ? (
           <>
-            <p className="duel-totals" role="status">
-              Összesen:{' '}
-              {playerA ? displayName(playerA) : 'A'} {totals.totalA} —{' '}
+            <p className='duel-totals' role='status'>
+              Összesen: {playerA ? displayName(playerA) : 'A'} {totals.totalA} —{' '}
               {playerB ? displayName(playerB) : 'B'} {totals.totalB}
             </p>
             <button
-              type="button"
-              className="btn btn--primary btn--block"
+              type='button'
+              className='btn btn--primary btn--block'
               onClick={handleFinishDuel}
             >
               Párharc lezárása
@@ -183,8 +175,8 @@ export function TournamentDuelPage() {
           </>
         ) : (
           <button
-            type="button"
-            className="btn btn--primary btn--block"
+            type='button'
+            className='btn btn--primary btn--block'
             disabled={!roundComplete || roundIndex >= tournament.roundsPerDuel}
             onClick={() => {
               if (roundIndex < tournament.roundsPerDuel && roundComplete) {

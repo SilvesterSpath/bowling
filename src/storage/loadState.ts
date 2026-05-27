@@ -188,11 +188,9 @@ function normalizeDuel(raw: unknown): TournamentDuel | null {
     playerAId: duel.playerAId,
     playerBId: duel.playerBId,
     rounds,
-    winnerId:
-      typeof duel.winnerId === 'string' ? duel.winnerId : null,
+    winnerId: typeof duel.winnerId === 'string' ? duel.winnerId : null,
     status,
-    tieBreakRounds:
-      tieBreakRounds.length > 0 ? tieBreakRounds : undefined,
+    tieBreakRounds: tieBreakRounds.length > 0 ? tieBreakRounds : undefined,
   };
 }
 
@@ -243,9 +241,8 @@ function normalizeTournament(raw: unknown): Tournament | null {
     (id): id is string => typeof id === 'string',
   );
 
-  const bracketRounds = (Array.isArray(tournament.bracketRounds)
-    ? tournament.bracketRounds
-    : []
+  const bracketRounds = (
+    Array.isArray(tournament.bracketRounds) ? tournament.bracketRounds : []
   )
     .map(normalizeBracketRound)
     .filter((round): round is TournamentBracketRound => round !== null);
@@ -282,7 +279,9 @@ function normalizeTournament(raw: unknown): Tournament | null {
 function normalizeState(state: AppState): AppState {
   const players = state.players
     .map(normalizePlayer)
-    .filter((player): player is Player => player !== null && player.name.length > 0);
+    .filter(
+      (player): player is Player => player !== null && player.name.length > 0,
+    );
 
   const matches = state.matches
     .map(normalizeMatch)
