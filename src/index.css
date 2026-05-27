@@ -728,6 +728,28 @@ fieldset.match-setup__section > .match-setup__hint {
   border-radius: var(--radius);
   border: 1px solid var(--color-border);
   transition: border-color 0.15s ease;
+  position: relative;
+}
+
+.history-card__badge {
+  display: inline-block;
+  margin-bottom: var(--space-xs);
+  padding: 0.15rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 4px;
+}
+
+.history-card__badge--match {
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+}
+
+.history-card__badge--tournament {
+  background: rgba(212, 175, 55, 0.2);
+  color: var(--color-gold);
 }
 
 .history-card:active {
@@ -1417,4 +1439,89 @@ fieldset.match-setup__section > .match-setup__hint {
   background: var(--color-gold-dim);
   border-radius: 0 0 6px 6px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* —— Tournament history bracket —— */
+.tournament-history-champion {
+  text-align: center;
+  padding: var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: rgba(212, 175, 55, 0.08);
+}
+
+.tournament-history-champion__name {
+  margin: var(--space-sm) 0 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-gold);
+}
+
+.tournament-bracket {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.tournament-bracket__round-title {
+  margin: 0 0 var(--space-sm);
+  font-size: 1.1rem;
+  color: var(--color-gold);
+}
+
+.tournament-bracket__bye {
+  margin: 0 0 var(--space-md);
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.tournament-bracket__duels {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.bracket-duel {
+  padding: var(--space-md);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.bracket-duel--champion-path {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.15);
+}
+
+.bracket-duel__title {
+  margin: 0 0 var(--space-sm);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.bracket-duel__totals,
+.bracket-duel__winner {
+  margin: var(--space-sm) 0 0;
+  font-size: 0.95rem;
+}
+
+.bracket-duel__winner strong {
+  color: var(--color-gold);
+}
+
+.bracket-duel__scores-label {
+  margin: var(--space-sm) 0 var(--space-xs);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.rounds-table--compact th,
+.rounds-table--compact td {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: 0.9rem;
 }

@@ -1,7 +1,10 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { SaveErrorBanner } from './components/common/SaveErrorBanner';
 import { SaveIndicator } from './components/common/SaveIndicator';
+import { HistoryLegacyRedirect } from './pages/HistoryLegacyRedirect';
+import { HistoryMatchPage } from './pages/HistoryMatchPage';
 import { HistoryPage } from './pages/HistoryPage';
+import { TournamentHistoryDetailPage } from './pages/TournamentHistoryDetailPage';
 import { HomePage } from './pages/HomePage';
 import { LeaderboardPage } from './pages/LeaderboardPage';
 import { MatchEndPage } from './pages/MatchEndPage';
@@ -27,7 +30,12 @@ export default function App() {
       <Route path="/match/leaderboard" element={<LeaderboardPage />} />
       <Route path="/match/end" element={<MatchEndPage />} />
       <Route path="/history" element={<HistoryPage />} />
-      <Route path="/history/:matchId" element={<HistoryPage />} />
+      <Route path="/history/match/:matchId" element={<HistoryMatchPage />} />
+      <Route
+        path="/history/tournament/:tournamentId"
+        element={<TournamentHistoryDetailPage />}
+      />
+      <Route path="/history/:legacyId" element={<HistoryLegacyRedirect />} />
       <Route path="/tournament/new" element={<TournamentNewPage />} />
       <Route path="/tournament" element={<TournamentHubPage />} />
       <Route path="/tournament/duel" element={<TournamentDuelPage />} />

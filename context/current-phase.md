@@ -2,65 +2,63 @@
 
 ## Phase
 
-**Bajnokság Phase 4 — Champion celebration** (completed)
+**Bajnokság Phase 5 — History** (completed)
 
-Phase 5 adds tournament history list and bracket detail.
+Phase 6 is final QA, backup restore with tournaments, and full regression.
 
 ## Status
 
 Completed — 2026-05-27
 
-## Goals (Phase 4)
+## Goals (Phase 5)
 
-- [x] `TournamentChampionPage` — large **Bajnokság győztese**, champion name, trophy
-- [x] CSS confetti overlay (~2–3s animation)
-- [x] Optional applause via HTML5 `Audio` (`/sounds/applause.mp3`, fails silently if missing)
-- [x] **Befejezés** → `status: completed`, `completedAt`, prune, clear `activeTournamentId`, home
-- [x] Hub redirects to `/tournament/champion` when `championId` set
-- [x] **Következő szakasz** with champion → champion page
-- [x] `finalizeActiveTournament` helper
+- [x] `getHistoryEntries(state)` — merged matches + tournaments, date desc
+- [x] Unified `HistoryList` with **Meccs** / **Bajnokság** badges
+- [x] `TournamentHistoryDetailPage` + `TournamentBracketView`
+- [x] Routes `/history/match/:id` and `/history/tournament/:id`
+- [x] Legacy redirect `/history/:id` → correct detail route
+- [x] Match history detail unchanged (`HistoryMatchPage` + `HistoryDetail`)
+- [x] Bracket: rounds, duels, scores, tie-breaks, erőnyerő, champion highlight
 - [x] `npm run build` + `npm run test` pass
 
 ## What was built
 
 | File | Purpose |
 |------|---------|
-| `src/pages/TournamentChampionPage.tsx` | Celebration + finalize confirm |
-| `src/components/tournament/TournamentTrophy.tsx` | Pure CSS cup + glow |
-| `src/components/tournament/ChampionConfetti.tsx` | CSS-only confetti particles |
-| `src/utils/tournament.ts` | `finalizeActiveTournament` |
-| `src/pages/TournamentHubPage.tsx` | Auto-redirect to champion screen |
-| `src/App.tsx` | Route `/tournament/champion` |
-| `src/index.css` | Champion, trophy, confetti styles |
-| `public/sounds/` | Folder for optional `applause.mp3` |
+| `src/utils/history.ts` | `HistoryEntry`, `getHistoryEntries`, `getTournamentById`, champion label |
+| `src/components/history/HistoryList.tsx` | Unified cards + badges |
+| `src/components/tournament/TournamentBracketView.tsx` | Read-only ágrajz |
+| `src/pages/HistoryPage.tsx` | List only |
+| `src/pages/HistoryMatchPage.tsx` | Meccs detail (extracted) |
+| `src/pages/TournamentHistoryDetailPage.tsx` | Bajnokság detail |
+| `src/pages/HistoryLegacyRedirect.tsx` | Old `/history/:id` URLs |
+| `src/App.tsx` | Split history routes |
+| `src/index.css` | Badges, bracket, champion block styles |
 
 ## Routes
 
 | Route | Screen |
 |-------|--------|
-| `/tournament/champion` | `TournamentChampionPage` |
+| `/history` | Unified list |
+| `/history/match/:matchId` | Meccs részletei (`HistoryDetail`) |
+| `/history/tournament/:tournamentId` | Bajnokság ágrajz |
+| `/history/:legacyId` | Redirect to match or tournament detail |
 
-Redirects: no active tournament → `/`; no `championId` → `/tournament`.
+## History list cards
 
-## Champion flow
+| Kind | Badge | Meta line |
+|------|-------|-----------|
+| Meccs | **Meccs** | `{n} játékos · {k} kör` + Győztes |
+| Bajnokság | **Bajnokság** | `{n} játékos · {szakasz} szakasz` + Győztes |
 
-1. Last bracket round completes → **Következő szakasz** → `advanceBracket` sets `championId` → `/tournament/champion`
-2. Hub with `championId` → auto-redirect to champion page
-3. Confetti + optional applause on mount
-4. **Befejezés** → confirm → tournament saved as `completed` in `tournaments[]`, `activeTournamentId` cleared → home
+Sorted by `completedAt` (newest first).
 
-Completed tournaments remain in state for Phase 5 history (not yet shown in Előzmények UI).
+## Tournament detail
 
-## Finalize (`finalizeActiveTournament`)
-
-- Sets `status: 'completed'`, `completedAt` (ISO)
-- `pruneCompletedTournaments` (max 50, mirror matches)
-- Clears `activeTournamentId`
-- Does **not** modify `matches[]`
-
-## Optional sound
-
-Place `applause.mp3` in `public/sounds/applause.mp3` for applause on champion screen. If the file is missing or autoplay is blocked, the app continues without error.
+- Date, **Bajnokság győztese** name
+- **Ágrajz:** each szakasz (label), erőnyerő if any
+- Per párharc: names, kör scores table, összesen, döntő körök, győztes
+- Champion-path duels get gold border highlight
 
 ## Verification
 
@@ -68,28 +66,35 @@ Place `applause.mp3` in `public/sounds/applause.mp3` for applause on champion sc
 |-------|--------|
 | `npm run build` | Pass |
 | `npm run test` | 8/8 pass |
-| Meccs finalize | Unchanged |
+| Meccs detail | Same `HistoryDetail` component |
+| Backup JSON | Already includes `tournaments` from schema v2 |
 
 ## Manual smoke test (recommended)
 
-- [ ] 2-player bajnokság → win final duel → **Következő szakasz** → champion screen
-- [ ] Trophy + confetti visible; name correct
-- [ ] **Befejezés** → home; no **Folytatás** for bajnokság
-- [ ] Reload: completed tournament still in localStorage (Phase 5 will list it)
-- [ ] Meccs flow still works
-
-## Not in Phase 4 (by design)
-
-- Tournament cards in Előzmények — Phase 5
-- Bracket history detail — Phase 5
+- [ ] Complete a meccs → appears in Előzmények with **Meccs** badge
+- [ ] Complete a bajnokság → appears with **Bajnokság** badge
+- [ ] Open tournament detail → ágrajz, champion, tie-break rows if played
+- [ ] Old bookmark `/history/{matchId}` still works via redirect
+- [ ] Meccs detail link `/history/match/{id}` works
 
 ## Next phase
 
-**Phase 5 — History**
+**Phase 6 — QA and backup**
 
-- Unified history list (Meccs + Bajnokság badges)
-- `TournamentHistoryDetail` + bracket view
-- Routes `/history/match/:id` and `/history/tournament/:id`
+- Full flows: 3 / 4 / 5 players, bye, tie-break repeat
+- Backup export/import with tournaments in JSON
+- Verify zero Meccs regressions
+- Optional: `getHistoryEntries` unit test
+
+## Bajnokság feature summary (Phases 1–5)
+
+| Phase | Deliverable |
+|-------|-------------|
+| 1 | Schema v2, tournament utils, tests |
+| 2 | Setup, home, hub |
+| 3 | Duel + tie-break scoring |
+| 4 | Champion screen + finalize |
+| 5 | Unified Előzmények |
 
 ## References
 
@@ -98,5 +103,5 @@ Place `applause.mp3` in `public/sounds/applause.mp3` for applause on champion sc
 ## History
 
 - 2026-05-27 — MVP Meccs Phases 0–8.
-- 2026-05-27 — Bajnokság Phases 0–3.
-- 2026-05-27 — Bajnokság Phase 4: champion screen, finalize, confetti, trophy.
+- 2026-05-27 — Bajnokság Phases 0–4.
+- 2026-05-27 — Bajnokság Phase 5: unified history + bracket detail.
