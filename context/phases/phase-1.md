@@ -1,3 +1,9 @@
+# Phase 1 — App state (localStorage)
+
+## Status
+
+Completed
+
 Implement Phase 1 only.
 
 Add the localStorage-based app state system.

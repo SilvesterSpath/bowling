@@ -2,9 +2,9 @@
 
 ## Phase
 
-**Phase 0 — Scaffold** (completed)
+**Phase 1 — App state (localStorage)** (completed)
 
-Next: **Phase 1 — Players** ([phase-1.md](phases/phase-1.md))
+Next: **Phase 2 — Create match** ([phase-2.md](phases/phase-2.md))
 
 ## Status
 
@@ -12,75 +12,60 @@ Completed
 
 ## Goals
 
-- [x] Vite + React + TypeScript project scaffold
-- [x] React Router with all MVP routes
-- [x] Mobile-first `AppShell`, festive green/gold theme
-- [x] Hungarian UI on Home and placeholder pages
-- [x] `AppState` types, `loadState` / `saveState` / `migrate`
-- [x] `useAppState` + `useActiveMatch` hooks (persistence ready)
-- [x] No business logic (player CRUD, scoring, titles deferred)
+- [x] `AppState`, `Player`, `Match`, `Round`, `RoundScore` types
+- [x] `defaultState()`, `loadState()`, `saveState()`, `migrateState()`
+- [x] Single key: `lengoteke:v1:state`
+- [x] Auto-load on app start (`useState(() => loadState())`)
+- [x] Persist on every `update()` / `replace()` via `useAppState`
+- [x] Safe recovery from missing / corrupt localStorage
+- [x] Hungarian save-error banner (quota / unknown)
+- [x] Read-only state summary on Játékosok page (counts only — no CRUD UI)
+- [x] Browser verification (see below)
 
-## What was built
+## What changed in Phase 1
 
-### Tooling
-
-| Item | Detail |
+| File | Change |
 |------|--------|
-| Stack | Vite 8, React 19, TypeScript, `react-router-dom` |
-| Package name | `lengoteke` |
-| Storage key | `lengoteke:v1:state` |
+| `src/hooks/useAppState.tsx` | Functional `update()` — no stale state on rapid writes |
+| `src/components/common/SaveErrorBanner.tsx` | Hungarian alert when save fails |
+| `src/App.tsx` | Global `SaveErrorBanner` above routes |
+| `src/storage/index.ts` | Barrel exports for storage API |
+| `src/pages/PlayersPage.tsx` | Read-only counts: játékosok, meccsek, aktív meccs |
+| `src/index.css` | Sticky save-error banner + state summary styles |
 
-### Routes
+## Storage API summary
 
-| Path | Page | State |
-|------|------|-------|
-| `/` | Home | Live — nav + active match resume link |
-| `/players` | Játékosok | Placeholder |
-| `/match/new` | Új meccs | Placeholder |
-| `/match/play` | Játék | Placeholder |
-| `/match/leaderboard` | Eredménytábla | Placeholder |
-| `/match/end` | Meccs vége | Placeholder |
-| `/history` | Előzmények | Placeholder |
-| `/history/:matchId` | Meccs részletei | Placeholder |
+```ts
+// Load (app boot)
+loadState(): AppState  // corrupt/missing → defaultState()
 
-### Source layout
+// Save (every mutation)
+saveState(state): { ok: true } | { ok: false; error: 'quota' | 'unknown' }
 
-```
-src/
-├── types/index.ts
-├── constants/{storage,scoring,titles}.ts
-├── storage/{defaultState,migrate,loadState,saveState}.ts
-├── hooks/{useAppState,useActiveMatch}.ts
-├── utils/{ids,format,scoring,titles}.ts
-├── components/layout/{AppShell,PageHeader}.tsx
-├── components/common/PlaceholderPage.tsx
-└── pages/{Home,Players,NewMatch,Play,Leaderboard,MatchEnd,History}.tsx
+// React
+const { state, update, replace, lastSaveError } = useAppState();
+update((prev) => ({ ...prev, players: [...] }));
 ```
 
-### Storage layer
+## Browser verification
 
-- **loadState**: parse JSON → migrate → normalize (scores clamped 0–10, active match validated)
-- **saveState**: returns `{ ok: true }` or `{ ok: false, error: 'quota' | 'unknown' }`
-- **useAppState**: `update(fn)` and `replace(state)` persist immediately; exposes `lastSaveError`
+**Dev server:** `http://localhost:5174/` (`npm run dev`)
+
+| Test | Steps | Result |
+|------|--------|--------|
+| Home loads | Navigate to `/` | Hungarian title + menu (Új meccs, Játékosok, Előzmények) |
+| State hydrate | Inject valid `lengoteke:v1:state` with active match via CDP, reload | **Folytatás — Teszt Meccs** link appears |
+| Corrupt recovery | Set `lengoteke:v1:state` to invalid JSON, reload | App loads; no crash; default empty menu (no Folytatás) |
+| Players page | `/players` | Játékosok heading; read-only summary shows 0/0/nem after corrupt reset |
+| Build | `npm run build` | Passes (43 modules) |
 
 ## Notes
 
-- Scaffold created via `npm create vite` in `_scaffold`, then moved to repo root (root was non-empty).
-- `utils/titles.ts` and full ranking helpers are stubs until Phase 4–5.
-- Per workflow: branch/commit not done — ask before `git commit`.
-- Plan file (`lengoteke-plan.md`) not written (user asked not to edit plan file).
-
-## Verification
-
-Run from project root:
-
-```bash
-npm run build
-npm run dev
-```
-
-Expected: build passes; Home shows Hungarian menu; all routes render placeholders.
+- Phase 1 spec: **no player CRUD UI** — deferred to Phase 2+.
+- `useActiveMatch` reads `activeMatchId` + `status === 'active'`; Home resume link confirmed in browser.
+- Dev server may use port **5174** if 5173 is busy.
 
 ## History
 
-- 2026-05-27 — Phase 0 completed: Vite scaffold, router, types, localStorage layer, placeholder pages, `current-phase.md` documented.
+- 2026-05-27 — Phase 0 completed: Vite scaffold, router, types, localStorage layer, placeholder pages.
+- 2026-05-27 — Phase 1 completed: state hardening, save error UI, functional updates, browser tests documented.

@@ -34,13 +34,19 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     return result;
   }, []);
 
-  const update = useCallback(
-    (updater: AppStateUpdater) => {
-      const next = updater(state);
-      return persist(next);
-    },
-    [persist, state],
-  );
+  const update = useCallback((updater: AppStateUpdater): SaveResult => {
+    let saveResult: SaveResult = { ok: true };
+    setState((prev) => {
+      const next = updater(prev);
+      saveResult = saveState(next);
+      if (saveResult.ok) {
+        return next;
+      }
+      return prev;
+    });
+    setLastSaveError(saveResult.ok ? null : saveResult);
+    return saveResult;
+  }, []);
 
   const replace = useCallback(
     (next: AppState) => persist(next),
