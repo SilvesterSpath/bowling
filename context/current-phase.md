@@ -2,9 +2,9 @@
 
 ## Phase
 
-**Phase 2 — Játékosok** (completed)
+**Phase 3 — Új meccs** (completed)
 
-Next: **Phase 3 — Score entry / match** ([phase-3.md](phases/phase-3.md))
+Next: **Phase 4 — Score entry** ([phase-4.md](phases/phase-4.md))
 
 ## Status
 
@@ -12,60 +12,68 @@ Completed
 
 ## Goals
 
-- [x] Add player with validation (empty, trim, max 24 chars)
-- [x] Edit player name inline
-- [x] Delete player with confirm dialog
-- [x] Block delete when player is in active match
-- [x] Persist all changes via `useAppState` → `lengoteke:v1:state`
-- [x] Hungarian labels and error messages
-- [x] Large mobile-friendly inputs and buttons
-- [x] No match creation (deferred to Phase 3)
+- [x] Select at least 2 players (max 12) via checkboxes
+- [x] Round count stepper, default 6, range 1–20
+- [x] Optional match name (fallback: `Szilveszter Cup — {date}`)
+- [x] Create match with pre-allocated empty rounds
+- [x] Set `activeMatchId` and persist
+- [x] Redirect to `/match/play` (Játék)
+- [x] Block new match when one is already active
+- [x] Redirect `/match/play` to home if no active match
+- [x] Hungarian UI throughout
+- [x] No score entry yet (Phase 4)
 
 ## What was built
 
 | File | Purpose |
 |------|---------|
-| `src/utils/playerValidation.ts` | `validatePlayerName`, `normalizePlayerName` |
-| `src/utils/players.ts` | `isPlayerInActiveMatch`, `sortPlayersByName` |
-| `src/components/players/PlayerForm.tsx` | Új játékos + Hozzáadás |
-| `src/components/players/PlayerList.tsx` | List, edit, delete + guards |
-| `src/components/players/PlayerChip.tsx` | Name display |
-| `src/components/common/ConfirmDialog.tsx` | Törlés megerősítés |
-| `src/pages/PlayersPage.tsx` | Full Játékosok page |
-| `src/index.css` | Form, list, dialog styles |
+| `src/utils/match.ts` | `createMatch`, `clampRoundCount` |
+| `src/components/match/MatchSetupForm.tsx` | Player pick, rounds, name, submit |
+| `src/pages/NewMatchPage.tsx` | Új meccs page |
+| `src/pages/PlayMatchPage.tsx` | Match summary stub + guard |
+| `src/index.css` | Match setup + play-started styles |
+
+## Flow
+
+```mermaid
+flowchart LR
+  newMatch[Új meccs] -->|Meccs indítása| play[Játék]
+  play --> home[Főoldal Folytatás]
+  newMatch -->|active exists| blocked[Blocked + folytatás link]
+```
 
 ## Hungarian UI copy
 
-| Action | Label / message |
-|--------|-----------------|
-| Add | Új játékos, Hozzáadás |
-| Empty name | Add meg a játékos nevét. |
-| Too long | Legfeljebb 24 karakter lehet. |
-| Empty list | Még nincs játékos. Add hozzá az elsőt! |
-| Edit | Szerkesztés, Mentés, Mégse |
-| Delete confirm | Játékos törlése — Biztosan törlöd: {name}? |
-| Active match block | {name} nem törölhető — aktív meccsben szerepel. |
+| Situation | Message |
+|-----------|---------|
+| Too few players in app | Legalább 2 játékos kell… + link Játékosok |
+| Too few selected | Válassz legalább 2 játékost. |
+| Active match exists | Már fut egy meccs: {name} |
+| Submit | Meccs indítása |
+| Play stub | A körönkénti pontbevitel a következő fázisban érkezik. |
 
 ## Browser verification
 
-**Dev server:** `http://localhost:5174/players`
+**Dev server:** `http://localhost:5174/`
 
 | Test | Result |
 |------|--------|
-| Empty submit | Alert: „Add meg a játékos nevét.” |
-| Add Anna + Béla | Both appear in list (Hungarian sort) |
-| Reload page | Players persist from localStorage |
-| Delete Anna in active match | Dialog → confirm → alert blocks delete; Anna remains |
-| Build | `npm run build` passes (50 modules) |
+| `/match/new` with 2 players | Checkboxes, round stepper (6), optional name |
+| Select Anna + Béla, submit | Redirect to `/match/play` |
+| Play page | Shows „Teszt Kupa”, 6 kör · 2 játékos, player chips |
+| Home | **Folytatás — Teszt Kupa** link |
+| localStorage | Active match has `rounds.length === 6` |
+| Active match blocks new | Új meccs shows blocked state + folytatás link |
+| Build | `npm run build` passes (54 modules) |
 
 ## Notes
 
-- Players sorted with `localeCompare('hu')`.
-- Új meccs page still placeholder (Phase 3).
-- Dev server HMR on port 5174.
+- Player order in match follows sorted checkbox list (Hungarian locale).
+- Játék page is a read-only stub until Phase 4 score grid.
 
 ## History
 
-- 2026-05-27 — Phase 0: Vite scaffold, router, storage layer.
-- 2026-05-27 — Phase 1: State hardening, save error banner, browser tests.
-- 2026-05-27 — Phase 2: Játékosok CRUD, delete guard, browser tests.
+- 2026-05-27 — Phase 0: Scaffold.
+- 2026-05-27 — Phase 1: localStorage state layer.
+- 2026-05-27 — Phase 2: Játékosok CRUD.
+- 2026-05-27 — Phase 3: Új meccs creation, active match, browser tests.

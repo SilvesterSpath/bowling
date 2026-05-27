@@ -1,11 +1,12 @@
-import { PlaceholderPage } from '../components/common/PlaceholderPage';
+import { AppShell } from '../components/layout/AppShell';
+import { PageHeader } from '../components/layout/PageHeader';
+import { MatchSetupForm } from '../components/match/MatchSetupForm';
 
 export function NewMatchPage() {
   return (
-    <PlaceholderPage
-      title="Új meccs"
-      description="Meccs indítása, játékosok kiválasztása — Phase 3-ban érkezik."
-      backTo="/"
-    />
+    <AppShell>
+      <PageHeader title="Új meccs" backTo="/" />
+      <MatchSetupForm />
+    </AppShell>
   );
 }
