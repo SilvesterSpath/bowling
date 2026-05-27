@@ -1,12 +1,34 @@
-import { PlaceholderPage } from '../components/common/PlaceholderPage';
+import { Link, Navigate } from 'react-router-dom';
+import { AppShell } from '../components/layout/AppShell';
+import { PageHeader } from '../components/layout/PageHeader';
+import { LeaderboardTable } from '../components/leaderboard/LeaderboardTable';
+import { useActiveMatch } from '../hooks/useActiveMatch';
+import { useAppState } from '../hooks/useAppState';
+import { getRankings } from '../utils/scoring';
 
 export function LeaderboardPage() {
+  const activeMatch = useActiveMatch();
+  const { state } = useAppState();
+
+  if (!activeMatch) {
+    return <Navigate to="/" replace />;
+  }
+
+  const rankings = getRankings(activeMatch);
+  const playersById = new Map(
+    state.players
+      .filter((player) => activeMatch.playerIds.includes(player.id))
+      .map((player) => [player.id, player]),
+  );
+
   return (
-    <PlaceholderPage
-      title="Eredménytábla"
-      description="Élő ranglista — Phase 4-ben érkezik."
-      backTo="/match/play"
-      backLabel="Játék"
-    />
+    <AppShell>
+      <PageHeader title="Eredménytábla" backTo="/match/play" backLabel="Játék" />
+      <p className="leaderboard-page__match">{activeMatch.name}</p>
+      <LeaderboardTable rankings={rankings} playersById={playersById} />
+      <Link to="/match/play" className="btn btn--secondary btn--block">
+        Vissza a játékhoz
+      </Link>
+    </AppShell>
   );
 }

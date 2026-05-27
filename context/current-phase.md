@@ -2,9 +2,9 @@
 
 ## Phase
 
-**Phase 3 — Új meccs** (completed)
+**Phase 4 — Eredménytábla** (completed)
 
-Next: **Phase 4 — Score entry** ([phase-4.md](phases/phase-4.md))
+Next: **Phase 5 — Meccs vége / címek** ([phase-5.md](phases/phase-5.md))
 
 ## Status
 
@@ -12,68 +12,50 @@ Completed
 
 ## Goals
 
-- [x] Select at least 2 players (max 12) via checkboxes
-- [x] Round count stepper, default 6, range 1–20
-- [x] Optional match name (fallback: `Szilveszter Cup — {date}`)
-- [x] Create match with pre-allocated empty rounds
-- [x] Set `activeMatchId` and persist
-- [x] Redirect to `/match/play` (Játék)
-- [x] Block new match when one is already active
-- [x] Redirect `/match/play` to home if no active match
-- [x] Hungarian UI throughout
-- [x] No score entry yet (Phase 4)
+- [x] Calculate total score per player (`getPlayerTotal`)
+- [x] Sort by score descending with competition ranking (`getRankings`)
+- [x] Handle ties (shared rank 1, 1, 3…)
+- [x] Show rank, player name, total, nullák (zero-score count)
+- [x] Highlight first place row(s)
+- [x] Live data from active match via `useActiveMatch`
+- [x] Hungarian column labels
+- [x] Guard: redirect home if no active match
+- [x] Link from Játék page to Eredménytábla
 
 ## What was built
 
 | File | Purpose |
 |------|---------|
-| `src/utils/match.ts` | `createMatch`, `clampRoundCount` |
-| `src/components/match/MatchSetupForm.tsx` | Player pick, rounds, name, submit |
-| `src/pages/NewMatchPage.tsx` | Új meccs page |
-| `src/pages/PlayMatchPage.tsx` | Match summary stub + guard |
-| `src/index.css` | Match setup + play-started styles |
+| `src/utils/scoring.ts` | `getRankings`, `getPlayerMisses`, `RankingEntry` |
+| `src/components/leaderboard/LeaderboardTable.tsx` | Table UI + leader highlight |
+| `src/pages/LeaderboardPage.tsx` | Active match leaderboard |
+| `src/pages/PlayMatchPage.tsx` | Eredménytábla button |
+| `src/index.css` | Leaderboard table styles |
 
-## Flow
+## Ranking rules
 
-```mermaid
-flowchart LR
-  newMatch[Új meccs] -->|Meccs indítása| play[Játék]
-  play --> home[Főoldal Folytatás]
-  newMatch -->|active exists| blocked[Blocked + folytatás link]
-```
-
-## Hungarian UI copy
-
-| Situation | Message |
-|-----------|---------|
-| Too few players in app | Legalább 2 játékos kell… + link Játékosok |
-| Too few selected | Válassz legalább 2 játékost. |
-| Active match exists | Már fut egy meccs: {name} |
-| Submit | Meccs indítása |
-| Play stub | A körönkénti pontbevitel a következő fázisban érkezik. |
+- **Összesen:** sum of entered round scores (null rounds count as 0).
+- **Nullák:** count of rounds where score === 0.
+- **Helyezés:** competition ranking; tied totals share the same rank.
 
 ## Browser verification
 
-**Dev server:** `http://localhost:5174/`
+**Dev server:** `http://localhost:5174/match/leaderboard`
 
 | Test | Result |
 |------|--------|
-| `/match/new` with 2 players | Checkboxes, round stepper (6), optional name |
-| Select Anna + Béla, submit | Redirect to `/match/play` |
-| Play page | Shows „Teszt Kupa”, 6 kör · 2 játékos, player chips |
-| Home | **Folytatás — Teszt Kupa** link |
-| localStorage | Active match has `rounds.length === 6` |
-| Active match blocks new | Új meccs shows blocked state + folytatás link |
-| Build | `npm run build` passes (54 modules) |
+| With scores Anna 15, Béla 13 | 1. Anna 15, 2. Béla 13 |
+| Tie both 15 | Both show rank **1.** (leader highlight) |
+| No active match | Redirect to `/` |
+| Match name shown | „Teszt Kupa” |
+| Build | `npm run build` passes (55 modules) |
 
 ## Notes
 
-- Player order in match follows sorted checkbox list (Hungarian locale).
-- Játék page is a read-only stub until Phase 4 score grid.
+- Score entry on Játék page still pending (separate phase); leaderboard reads whatever is in `rounds`.
+- `phase-4.md` header typo („Phase 5”) corrected to Phase 4.
 
 ## History
 
-- 2026-05-27 — Phase 0: Scaffold.
-- 2026-05-27 — Phase 1: localStorage state layer.
-- 2026-05-27 — Phase 2: Játékosok CRUD.
-- 2026-05-27 — Phase 3: Új meccs creation, active match, browser tests.
+- 2026-05-27 — Phase 0–3: Scaffold through Új meccs.
+- 2026-05-27 — Phase 4: Eredménytábla, ties, nullák, browser tests.

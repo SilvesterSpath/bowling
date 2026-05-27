@@ -36,6 +36,9 @@ export function PlayMatchPage() {
         <p className="match-started__notice">
           A körönkénti pontbevitel a következő fázisban érkezik.
         </p>
+        <Link to="/match/leaderboard" className="btn btn--primary btn--block">
+          Eredménytábla
+        </Link>
         <Link to="/" className="btn btn--secondary btn--block">
           Főoldal
         </Link>

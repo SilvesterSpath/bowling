@@ -1,3 +1,4 @@
+import { MAX_COMPLETED_MATCHES } from '../constants/storage';
 import {
   DEFAULT_ROUND_COUNT,
   MAX_ROUND_COUNT,

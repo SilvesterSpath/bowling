@@ -1,4 +1,10 @@
-Implement Phase 5 only.
+# Phase 4 — Eredménytábla
+
+## Status
+
+Completed
+
+Implement Phase 4 only.
 
 Build the Eredménytábla page.
 
@@ -12,4 +18,4 @@ Features:
 - update live from active match state
 
 All UI text must be Hungarian.
-Stop after Phase 5 is complete.
+Stop after Phase 4 is complete.

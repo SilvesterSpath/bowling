@@ -510,6 +510,68 @@ p {
   padding: var(--space-md) 0;
 }
 
+.leaderboard-page__match {
+  text-align: center;
+  color: var(--color-gold);
+  font-weight: 700;
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+  padding: var(--space-sm) var(--space-md);
+  text-align: left;
+}
+
+.leaderboard-table thead {
+  background: var(--color-surface-2);
+}
+
+.leaderboard-table th {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.leaderboard-table tbody tr {
+  border-top: 1px solid var(--color-border);
+}
+
+.leaderboard-table__row--leader {
+  background: rgba(212, 175, 55, 0.18);
+}
+
+.leaderboard-table__row--leader .leaderboard-table__rank,
+.leaderboard-table__row--leader .leaderboard-table__name {
+  color: var(--color-gold);
+}
+
+.leaderboard-table__rank {
+  font-weight: 800;
+  width: 3.5rem;
+}
+
+.leaderboard-table__total {
+  font-weight: 700;
+  font-size: 1.15rem;
+  text-align: center;
+}
+
+.leaderboard-table__misses {
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
 .save-error-banner {
   position: sticky;
   top: 0;
