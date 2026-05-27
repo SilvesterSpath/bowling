@@ -1,6 +1,20 @@
 import { MAX_SCORE_PER_ROUND, MIN_SCORE_PER_ROUND } from '../constants/scoring';
 import { STORAGE_KEY } from '../constants/storage';
-import type { AppState, Match, Player, Round, RoundScore } from '../types';
+import type {
+  AppState,
+  Match,
+  Player,
+  Round,
+  RoundScore,
+  Tournament,
+  TournamentBracketRound,
+  TournamentDuel,
+} from '../types';
+import {
+  MAX_TOURNAMENT_DUEL_ROUNDS,
+  MIN_TOURNAMENT_DUEL_ROUNDS,
+} from '../constants/tournament';
+import { enforceSessionExclusivity } from '../utils/tournament';
 import { defaultState } from './defaultState';
 import { migrateState } from './migrate';
 
@@ -126,6 +140,145 @@ function normalizePlayer(raw: unknown): Player | null {
   };
 }
 
+function normalizeDuelStatus(raw: unknown): TournamentDuel['status'] | null {
+  if (raw === 'pending' || raw === 'active' || raw === 'completed') {
+    return raw;
+  }
+  return null;
+}
+
+function normalizeDuel(raw: unknown): TournamentDuel | null {
+  if (!raw || typeof raw !== 'object') {
+    return null;
+  }
+  const duel = raw as Partial<TournamentDuel>;
+  const status = normalizeDuelStatus(duel.status);
+  if (
+    typeof duel.id !== 'string' ||
+    typeof duel.playerAId !== 'string' ||
+    typeof duel.playerBId !== 'string' ||
+    status === null
+  ) {
+    return null;
+  }
+
+  const playerIds = [duel.playerAId, duel.playerBId];
+  const rounds: Round[] = [];
+  if (Array.isArray(duel.rounds)) {
+    for (const round of duel.rounds) {
+      const normalized = normalizeRound(round, playerIds);
+      if (normalized) {
+        rounds.push(normalized);
+      }
+    }
+  }
+
+  const tieBreakRounds: Round[] = [];
+  if (Array.isArray(duel.tieBreakRounds)) {
+    for (const round of duel.tieBreakRounds) {
+      const normalized = normalizeRound(round, playerIds);
+      if (normalized) {
+        tieBreakRounds.push(normalized);
+      }
+    }
+  }
+
+  return {
+    id: duel.id,
+    playerAId: duel.playerAId,
+    playerBId: duel.playerBId,
+    rounds,
+    winnerId:
+      typeof duel.winnerId === 'string' ? duel.winnerId : null,
+    status,
+    tieBreakRounds:
+      tieBreakRounds.length > 0 ? tieBreakRounds : undefined,
+  };
+}
+
+function normalizeBracketRound(raw: unknown): TournamentBracketRound | null {
+  if (!raw || typeof raw !== 'object') {
+    return null;
+  }
+  const round = raw as Partial<TournamentBracketRound>;
+  if (
+    typeof round.index !== 'number' ||
+    typeof round.label !== 'string' ||
+    !Array.isArray(round.duels)
+  ) {
+    return null;
+  }
+
+  const duels = round.duels
+    .map(normalizeDuel)
+    .filter((duel): duel is TournamentDuel => duel !== null);
+
+  return {
+    index: round.index,
+    label: round.label.trim(),
+    duels,
+    byePlayerId:
+      typeof round.byePlayerId === 'string' ? round.byePlayerId : undefined,
+  };
+}
+
+function normalizeTournament(raw: unknown): Tournament | null {
+  if (!raw || typeof raw !== 'object') {
+    return null;
+  }
+  const tournament = raw as Partial<Tournament>;
+  if (
+    typeof tournament.id !== 'string' ||
+    typeof tournament.name !== 'string' ||
+    !Array.isArray(tournament.playerIds) ||
+    typeof tournament.roundsPerDuel !== 'number' ||
+    (tournament.status !== 'active' && tournament.status !== 'completed') ||
+    typeof tournament.currentRoundIndex !== 'number' ||
+    typeof tournament.createdAt !== 'string'
+  ) {
+    return null;
+  }
+
+  const playerIds = tournament.playerIds.filter(
+    (id): id is string => typeof id === 'string',
+  );
+
+  const bracketRounds = (Array.isArray(tournament.bracketRounds)
+    ? tournament.bracketRounds
+    : []
+  )
+    .map(normalizeBracketRound)
+    .filter((round): round is TournamentBracketRound => round !== null);
+
+  const roundsPerDuel = Math.min(
+    MAX_TOURNAMENT_DUEL_ROUNDS,
+    Math.max(MIN_TOURNAMENT_DUEL_ROUNDS, Math.round(tournament.roundsPerDuel)),
+  );
+
+  return {
+    id: tournament.id,
+    name: tournament.name.trim(),
+    playerIds,
+    roundsPerDuel,
+    status: tournament.status,
+    currentRoundIndex: tournament.currentRoundIndex,
+    activeDuelId:
+      typeof tournament.activeDuelId === 'string'
+        ? tournament.activeDuelId
+        : null,
+    bracketRounds,
+    championId:
+      typeof tournament.championId === 'string'
+        ? tournament.championId
+        : undefined,
+    createdAt: tournament.createdAt,
+    completedAt:
+      typeof tournament.completedAt === 'string'
+        ? tournament.completedAt
+        : undefined,
+  };
+}
+
 function normalizeState(state: AppState): AppState {
   const players = state.players
     .map(normalizePlayer)
@@ -135,7 +288,11 @@ function normalizeState(state: AppState): AppState {
     .map(normalizeMatch)
     .filter((match): match is Match => match !== null);
 
-  const activeMatchId =
+  const tournaments = state.tournaments
+    .map(normalizeTournament)
+    .filter((tournament): tournament is Tournament => tournament !== null);
+
+  let activeMatchId =
     state.activeMatchId &&
     matches.some(
       (match) => match.id === state.activeMatchId && match.status === 'active',
@@ -143,12 +300,26 @@ function normalizeState(state: AppState): AppState {
       ? state.activeMatchId
       : null;
 
-  return {
+  let activeTournamentId =
+    state.activeTournamentId &&
+    tournaments.some(
+      (tournament) =>
+        tournament.id === state.activeTournamentId &&
+        tournament.status === 'active',
+    )
+      ? state.activeTournamentId
+      : null;
+
+  const normalized: AppState = {
     schemaVersion: state.schemaVersion,
     players,
     matches,
+    tournaments,
     activeMatchId,
+    activeTournamentId,
   };
+
+  return enforceSessionExclusivity(normalized);
 }
 
 export function loadState(): AppState {

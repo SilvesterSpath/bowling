@@ -46,9 +46,23 @@ export interface Match {
   titles?: PlayerTitle[];
 }
 
+import type { Tournament, TournamentId } from './tournament';
+
+export type {
+  DuelId,
+  DuelStatus,
+  Tournament,
+  TournamentBracketRound,
+  TournamentDuel,
+  TournamentId,
+  TournamentStatus,
+} from './tournament';
+
 export interface AppState {
-  schemaVersion: 1;
+  schemaVersion: 2;
   players: Player[];
   matches: Match[];
+  tournaments: Tournament[];
   activeMatchId: MatchId | null;
+  activeTournamentId: TournamentId | null;
 }

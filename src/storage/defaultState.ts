@@ -6,6 +6,8 @@ export function defaultState(): AppState {
     schemaVersion: SCHEMA_VERSION,
     players: [],
     matches: [],
+    tournaments: [],
     activeMatchId: null,
+    activeTournamentId: null,
   };
 }
