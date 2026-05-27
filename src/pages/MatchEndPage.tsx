@@ -4,10 +4,12 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { AppShell } from '../components/layout/AppShell';
 import { PageHeader } from '../components/layout/PageHeader';
 import { LeaderboardTable } from '../components/leaderboard/LeaderboardTable';
+import { RoundTitlesRecap } from '../components/match/RoundTitlesRecap';
 import { TitleCard } from '../components/leaderboard/TitleCard';
 import { useActiveMatch } from '../hooks/useActiveMatch';
 import { useAppState } from '../hooks/useAppState';
 import { pruneCompletedMatches } from '../utils/match';
+import { sortPlayersByName } from '../utils/players';
 import { getRankings } from '../utils/scoring';
 import { computePlacementTitles } from '../utils/placementTitles';
 
@@ -21,8 +23,10 @@ export function MatchEndPage() {
     if (!activeMatch) {
       return [];
     }
-    return state.players.filter((player) =>
-      activeMatch.playerIds.includes(player.id),
+    return sortPlayersByName(
+      state.players.filter((player) =>
+        activeMatch.playerIds.includes(player.id),
+      ),
     );
   }, [activeMatch, state.players]);
 
@@ -103,6 +107,8 @@ export function MatchEndPage() {
           })}
         </div>
       </section>
+
+      <RoundTitlesRecap match={activeMatch} players={matchPlayers} />
 
       <button
         type='button'

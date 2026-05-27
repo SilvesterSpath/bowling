@@ -1066,7 +1066,14 @@ fieldset.match-setup__section > .match-setup__hint {
   gap: var(--space-md);
 }
 
-.app-shell--compact .history-rounds__summary {
+.match-end__legacy-note {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  margin-bottom: var(--space-sm);
+}
+
+.round-titles-recap__summary,
+.history-rounds__summary {
   font-size: 1.1rem;
   color: var(--color-gold);
   font-weight: 700;
@@ -1074,12 +1081,59 @@ fieldset.match-setup__section > .match-setup__hint {
   list-style: none;
 }
 
-.app-shell--compact .history-rounds__summary::-webkit-details-marker {
+.round-titles-recap__summary::-webkit-details-marker,
+.history-rounds__summary::-webkit-details-marker {
   display: none;
 }
 
-.app-shell--compact .history-rounds[open] .history-rounds__summary {
+.round-titles-recap[open] > .round-titles-recap__summary,
+.history-rounds[open] > .history-rounds__summary {
   margin-bottom: var(--space-sm);
+}
+
+.round-titles-recap__rounds {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.round-titles-recap__round {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space-xs) var(--space-sm);
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.round-titles-recap__round-summary {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  list-style: none;
+}
+
+.round-titles-recap__round-summary::-webkit-details-marker {
+  display: none;
+}
+
+.round-titles-recap__round[open] .round-titles-recap__round-summary {
+  margin-bottom: var(--space-xs);
+  color: var(--color-gold);
+}
+
+.round-titles-recap__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.round-titles-recap__item {
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--color-surface-2);
+  border-radius: var(--radius);
 }
 
 .app-shell--compact .score-grid {

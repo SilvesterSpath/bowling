@@ -6,6 +6,27 @@ import {
 import type { Match, Player, PlayerTitle } from '../types';
 import { getRankings } from './scoring';
 
+const LEGACY_FINALE_TITLE_KEYS = new Set([
+  'champion',
+  'last_place',
+  'high_roller',
+  'gutter_king',
+  'steady_eddie',
+  'roller_coaster',
+  'clutch_finisher',
+  'slow_starter',
+  'party_animal',
+  'default',
+]);
+
+/** Stored titles from the old stat-based finale (pre–placement titles). */
+export function isLegacyFinaleTitles(titles: PlayerTitle[]): boolean {
+  if (titles.length === 0) {
+    return false;
+  }
+  return titles.some((title) => LEGACY_FINALE_TITLE_KEYS.has(title.key));
+}
+
 function labelForRank(
   rank: number,
   lastRank: number,
