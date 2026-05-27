@@ -138,28 +138,30 @@ export function PlayerList() {
                 </div>
               </div>
             ) : (
-              <>
+              <div className="player-list__row">
                 <PlayerChip name={player.name} />
                 <div className="player-list__actions">
                   <button
                     type="button"
-                    className="btn btn--secondary"
+                    className="player-list__action"
                     onClick={() => startEdit(player)}
                   >
-                    Szerkesztés
+                    <EditIcon />
+                    <span>Szerkesztés</span>
                   </button>
                   <button
                     type="button"
-                    className="btn btn--ghost"
+                    className="player-list__action player-list__action--danger"
                     onClick={() => {
                       setListError(null);
                       setDeleteTarget(player);
                     }}
                   >
-                    Törlés
+                    <DeleteIcon />
+                    <span>Törlés</span>
                   </button>
                 </div>
-              </>
+              </div>
             )}
           </li>
         ))}
@@ -178,5 +180,48 @@ export function PlayerList() {
         onCancel={() => setDeleteTarget(null)}
       />
     </>
+  );
+}
+
+function EditIcon() {
+  return (
+    <svg
+      className="player-list__icon"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+    </svg>
+  );
+}
+
+function DeleteIcon() {
+  return (
+    <svg
+      className="player-list__icon"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M3 6h18" />
+      <path d="M8 6V4h8v2" />
+      <path d="M19 6v14H5V6" />
+      <path d="M10 11v6" />
+      <path d="M14 11v6" />
+    </svg>
   );
 }
