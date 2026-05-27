@@ -238,7 +238,7 @@ export function TournamentSetupForm() {
       ) : null}
 
       <button type="submit" className="btn btn--primary btn--block">
-        Bajnokság indítása
+        Start — Bajnokság
       </button>
     </form>
   );

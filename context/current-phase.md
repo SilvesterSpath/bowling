@@ -2,9 +2,9 @@
 
 ## Phase
 
-**Bajnokság titles — Phase 4** (completed)
+**Bajnokság titles** — complete (Phases 0–5)
 
-History parity: placement titles + per-duel round title recap on tournament detail.
+Funny round titles in párharc scoring + placement titles for all entrants at bajnokság end. Builds on **Bajnokság v1** (Phases 0–6 on `main`).
 
 ## Status
 
@@ -12,70 +12,120 @@ Completed — 2026-05-27
 
 **Branch:** `feature/bajnoksag-titles`
 
-## Goals (Titles Phase 4)
+## Verdict
 
-- [x] `RoundTitlesRecapCore` — shared `{ rounds, playerIds, players }` with labeled entries
-- [x] `RoundTitlesRecap` — Meccs wrapper (unchanged UX for match end + history)
-- [x] `DuelRoundTitlesRecap` — main körök + döntő körök per párharc
-- [x] `TournamentBracketView` — recap under each duel in ágrajz
-- [x] `TournamentHistoryDetailPage` — **Helyezési címek** from `tournament.titles` (fallback: recompute)
-- [x] `npm run build` + `npm run test` (25/25) + `npm run lint` (clean)
+**Ready to merge** after optional manual smoke below.
 
-## What was built
-
-| File | Change |
+| Area | Result |
 |------|--------|
-| `src/components/match/RoundTitlesRecap.tsx` | `RoundTitlesRecapCore` + generalized match recap |
-| `src/components/tournament/DuelRoundTitlesRecap.tsx` | **New** — duel + tie-break round titles |
-| `src/components/tournament/TournamentBracketView.tsx` | `DuelRoundTitlesRecap` per párharc |
-| `src/pages/TournamentHistoryDetailPage.tsx` | Placement section + bracket with recaps |
-| `src/index.css` | `.bracket-duel__titles` spacing |
-
-## History detail layout
-
-1. Date
-2. **Bajnokság győztese**
-3. **Helyezési címek** (`tournament.titles`, or computed for older saves)
-4. **Ágrajz** — scores, totals, döntő körök, győztes, **Körönkénti címek** per duel
-
-## Automated verification
-
-| Check | Result |
-|-------|--------|
 | `npm run build` | Pass |
 | `npm run test` | 25/25 pass |
 | `npm run lint` | Pass |
+| Meccs play / end / history | Unchanged behavior (`PlayMatchPage` uses shared hook only) |
+| `roundTitles.ts` rules | Not modified |
 
-## Manual smoke (recommended)
+---
 
-- [ ] Complete bajnokság → history → **Helyezési címek** match champion screen
-- [ ] Expand **Körönkénti címek** under a párharc in ágrajz
-- [ ] Duel with tie-break → döntő kör labeled in recap
-- [ ] Meccs history `/history/match/:id` — round recap still works
-
-## Titles implementation phases
+## Titles phases (0–5)
 
 | Phase | Deliverable | Status |
 |-------|-------------|--------|
-| 0 | Context + regression gate | Done |
-| 1 | Live round titles (duel + tiebreak) | Done |
-| 2 | Elimination rankings + placement compute | Done |
-| 3 | Persist + champion UI | Done |
-| 4 | History recap + placement in detail | **Done** |
-| 5 | Docs + sign-off | Next |
+| 0 | Branch + Meccs baseline gate | Done |
+| 1 | `useRoundTitleDisplayMap`; duel + tie-break live titles | Done |
+| 2 | `getTournamentEliminationRankings`; `computeTournamentPlacementTitles` | Done |
+| 3 | `Tournament.titles`; champion **Helyezési címek**; finalize persist | Done |
+| 4 | `DuelRoundTitlesRecap`; history placement + per-duel recap | Done |
+| 5 | Sign-off (this file) | Done |
 
-## Next phase
+---
 
-**Titles Phase 5 — Sign-off**
+## Phase 0 — Context
 
-- Update `bajnoksag-plan.md` (remove titles from out-of-scope)
-- Final build/test/lint + manual smoke checklist
+- [x] Branch `feature/bajnoksag-titles`
+- [x] Build / test / lint clean before coding
+- [x] Scope: per-round funny + all-entrant placement (not per-duel placement screen)
+- [x] Reuse `computeRoundTitles`; do not change Meccs finalize or classification rules
 
-## References
+## Phase 1 — Live round titles
 
-- Cursor plan: `bajnokság_funny_titles_31e0fae8.plan.md`
+- [x] `src/hooks/useRoundTitleDisplayMap.ts`
+- [x] `PlayMatchPage`, `TournamentDuelPage`, `TournamentTiebreakPage`
+- [x] Tie-break uses `roundsPerDuel + tieBreakIndex + 1` for label variants
+- [x] `roundIndex` resets when `duel.id` changes
+
+## Phase 2 — Placement data layer
+
+- [x] `getTournamentEliminationRankings` — bracket bands (`poolSize - duels.length + 1` for losers)
+- [x] `computeTournamentPlacementTitles`
+- [x] Tests: 2 / 3 / 4 / 5 players + placement label mapping
+
+## Phase 3 — Champion + persist
+
+- [x] `Tournament.titles?: PlayerTitle[]`
+- [x] `normalizePlayerTitles` in `loadState`
+- [x] `finalizeActiveTournament` stores titles
+- [x] `TournamentChampionPage` — **Helyezési címek** for all entrants
+
+## Phase 4 — History
+
+- [x] `RoundTitlesRecapCore` + match wrapper
+- [x] `DuelRoundTitlesRecap` in `TournamentBracketView`
+- [x] `TournamentHistoryDetailPage` — placement + ágrajz recaps (fallback compute if no stored `titles`)
+
+## Phase 5 — Sign-off
+
+- [x] Final `npm run build` / `test` / `lint`
+- [x] Documentation consolidated in this file only
+
+---
+
+## What users get
+
+- **Párharc / döntő kör:** funny + gap subtitles when a kör is complete (same engine as Meccs)
+- **Champion screen:** **Helyezési címek** for every entrant before **Befejezés**
+- **Előzmények:** `tournament.titles` + **Körönkénti címek** per párharc in ágrajz
+
+## Key files
+
+| Area | Path |
+|------|------|
+| Hook | `src/hooks/useRoundTitleDisplayMap.ts` |
+| Rankings | `src/utils/tournament.ts` |
+| Placement | `src/utils/placementTitles.ts` |
+| Scoring UI | `src/pages/TournamentDuelPage.tsx`, `TournamentTiebreakPage.tsx` |
+| Champion | `src/pages/TournamentChampionPage.tsx` |
+| History | `src/pages/TournamentHistoryDetailPage.tsx`, `src/components/tournament/DuelRoundTitlesRecap.tsx` |
+| Tests | `src/utils/tournament.test.ts`, `src/utils/placementTitles.test.ts` |
+
+## Ranking rules (placement)
+
+- `championId` → rank 1
+- Each completed duel loser: rank from that round’s pool size
+- `poolSize = duels × 2 + (bye ? 1 : 0)` → `eliminationRank = poolSize - duels.length + 1`
+- Tied losers in the same round share the same rank
+
+## Manual smoke (before merge)
+
+### Bajnokság
+
+- [ ] Párharc: complete a kör → funny lines under both names
+- [ ] Tie-break: titles on döntő kör; repeat if still tied
+- [ ] Champion: all **Helyezési címek** visible
+- [ ] **Befejezés** → JSON backup includes `tournament.titles`
+- [ ] `/history/tournament/:id` → placement + per-duel **Körönkénti címek**
+
+### Meccs regression
+
+- [ ] `/match/play` — round titles still work
+- [ ] `/match/end` and `/history/match/:id` — unchanged
+
+## Still out of scope
+
+- Per-duel placement screen between párharc and hub
+- Pin-total rankings across the tournament
+- Editing `constants/roundTitles.ts` variant tables
 
 ## History
 
-- 2026-05-27 — Titles Phases 0–3.
-- 2026-05-27 — Titles Phase 4: history placement + per-duel round title recap.
+- 2026-05-27 — Bajnokság v1 Phases 0–6 (`main`).
+- 2026-05-27 — Titles Phases 0–5 on `feature/bajnoksag-titles`; sign-off in this file.

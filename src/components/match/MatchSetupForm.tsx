@@ -114,7 +114,7 @@ export function MatchSetupForm() {
           Már fut egy bajnokság: {activeTournament.name}
         </p>
         <p className="match-setup__hint">
-          Az új meccs csak bajnokság elvetése után indítható.
+          A meccs csak bajnokság elvetése után indítható.
         </p>
         <Link to="/" className="btn btn--primary btn--block">
           Vissza a főoldalra
@@ -226,7 +226,7 @@ export function MatchSetupForm() {
       ) : null}
 
       <button type="submit" className="btn btn--primary btn--block">
-        Meccs indítása
+        Start — Meccs
       </button>
     </form>
   );

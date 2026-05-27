@@ -66,10 +66,10 @@ export function HomePage() {
         ) : null}
 
         <Link to='/match/new' className='btn btn--secondary btn--block'>
-          Új meccs
+          Start — Meccs
         </Link>
         <Link to='/tournament/new' className='btn btn--secondary btn--block'>
-          Új bajnokság
+          Start — Bajnokság
         </Link>
         <Link to='/players' className='btn btn--secondary btn--block'>
           Játékosok

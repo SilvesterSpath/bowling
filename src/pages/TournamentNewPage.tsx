@@ -5,7 +5,7 @@ import { TournamentSetupForm } from '../components/tournament/TournamentSetupFor
 export function TournamentNewPage() {
   return (
     <AppShell compact>
-      <PageHeader title="Új bajnokság" backTo="/" />
+      <PageHeader title="Start — Bajnokság" backTo="/" />
       <TournamentSetupForm />
     </AppShell>
   );
