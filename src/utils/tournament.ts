@@ -553,3 +553,112 @@ export function abandonActiveTournament(state: AppState): AppState {
     activeTournamentId: null,
   };
 }
+
+export function findDuelById(
+  tournament: Tournament,
+  duelId: DuelId,
+): TournamentDuel | null {
+  for (const round of tournament.bracketRounds) {
+    const duel = round.duels.find((entry) => entry.id === duelId);
+    if (duel) {
+      return duel;
+    }
+  }
+  return null;
+}
+
+export function getActiveDuel(tournament: Tournament): TournamentDuel | null {
+  if (!tournament.activeDuelId) {
+    return null;
+  }
+  return findDuelById(tournament, tournament.activeDuelId);
+}
+
+export function updateDuelById(
+  tournament: Tournament,
+  duelId: DuelId,
+  updater: (duel: TournamentDuel) => TournamentDuel,
+): Tournament {
+  return {
+    ...tournament,
+    bracketRounds: tournament.bracketRounds.map((round) => ({
+      ...round,
+      duels: round.duels.map((duel) =>
+        duel.id === duelId ? updater(duel) : duel,
+      ),
+    })),
+  };
+}
+
+export function finishDuel(
+  tournament: Tournament,
+  duelId: DuelId,
+  winnerId: PlayerId,
+): Tournament {
+  const updated = updateDuelById(tournament, duelId, (duel) => ({
+    ...duel,
+    winnerId,
+    status: 'completed',
+  }));
+  return {
+    ...updated,
+    activeDuelId:
+      updated.activeDuelId === duelId ? null : updated.activeDuelId,
+  };
+}
+
+export function getDuelMainTotals(duel: TournamentDuel): {
+  totalA: number;
+  totalB: number;
+} {
+  return {
+    totalA: getRoundsTotal(duel.rounds, duel.playerAId),
+    totalB: getRoundsTotal(duel.rounds, duel.playerBId),
+  };
+}
+
+export function getDuelCurrentRoundIndex(duel: TournamentDuel): number {
+  const incomplete = duel.rounds.find((round) => !isRoundComplete(round));
+  return incomplete?.index ?? duel.rounds.length;
+}
+
+export function getDuelRoundByIndex(
+  duel: TournamentDuel,
+  index: number,
+): Round | undefined {
+  return duel.rounds.find((round) => round.index === index);
+}
+
+export function canAdvanceFromDuelRound(
+  duel: TournamentDuel,
+  roundIndex: number,
+): boolean {
+  const round = getDuelRoundByIndex(duel, roundIndex);
+  return round ? isRoundComplete(round) : false;
+}
+
+export function getIncompleteTieBreakRound(
+  duel: TournamentDuel,
+): { round: Round; index: number } | null {
+  const rounds = duel.tieBreakRounds ?? [];
+  const index = rounds.findIndex((round) => !isRoundComplete(round));
+  if (index < 0) {
+    return null;
+  }
+  return { round: rounds[index], index };
+}
+
+export function appendTieBreakRound(duel: TournamentDuel): TournamentDuel {
+  const newRound = createTieBreakRound(duel.playerAId, duel.playerBId);
+  return {
+    ...duel,
+    tieBreakRounds: [...(duel.tieBreakRounds ?? []), newRound],
+  };
+}
+
+export function winnerIdFromOutcome(
+  duel: TournamentDuel,
+  outcome: Exclude<DuelOutcome, 'tie' | 'incomplete'>,
+): PlayerId {
+  return outcome === 'a' ? duel.playerAId : duel.playerBId;
+}

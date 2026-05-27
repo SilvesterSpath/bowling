@@ -17,6 +17,8 @@ import {
   getTournamentProgress,
   hasAnyTournamentScoresEntered,
   isBracketRoundComplete,
+  isDuelMainComplete,
+  needsTieBreak,
   updateActiveTournament,
 } from '../utils/tournament';
 
@@ -69,7 +71,12 @@ export function TournamentHubPage() {
       return;
     }
     if (currentDuel.status === 'active') {
-      navigate('/tournament/duel');
+      const target =
+        isDuelMainComplete(currentDuel, activeTournament.roundsPerDuel) &&
+        needsTieBreak(currentDuel, activeTournament.roundsPerDuel)
+          ? '/tournament/duel/tiebreak'
+          : '/tournament/duel';
+      navigate(target);
       return;
     }
     const result = persistTournament(

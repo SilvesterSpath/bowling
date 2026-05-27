@@ -2,89 +2,80 @@
 
 ## Phase
 
-**Bajnokság Phase 2 — Setup, home, hub shell** (completed)
+**Bajnokság Phase 3 — Duel + tie-break** (completed)
 
-Phase 3 adds real duel scoring (`TournamentDuelPage` replaces placeholder).
+Phase 4 adds champion celebration and tournament finalize.
 
 ## Status
 
 Completed — 2026-05-27
 
-## Goals (Phase 2)
+## Goals (Phase 3)
 
-- [x] `TournamentNewPage` + `TournamentSetupForm` (players, shuffle, duel rounds default **3**)
-- [x] `TournamentHubPage` + `TournamentProgressPanel` (wired to `getTournamentProgress`)
-- [x] Home: **Új bajnokság**, **Folytatás** for active tournament, mutual-exclusion with Meccs
-- [x] `MatchSetupForm` blocks when bajnokság active; tournament setup blocks when meccs active
-- [x] `useActiveTournament` hook
-- [x] `abandonActiveTournament` — no history row (tournament removed from state)
-- [x] Routes: `/tournament/new`, `/tournament`, `/tournament/duel` (placeholder until Phase 3)
-- [x] Hub: **Párharc indítása** / **Folytatás**, **Következő szakasz**, **Bajnokság elvetése**
+- [x] `TournamentDuelPage` — N-round scoring (`RoundScoreGrid`, `RoundNavigator`)
+- [x] `TournamentTiebreakPage` — single-round playoffs, auto-repeat if tied
+- [x] Replace `/tournament/duel` placeholder
+- [x] Route `/tournament/duel/tiebreak`
+- [x] Main duel totals → winner or tie-break (no manual winner)
+- [x] Duel completion → hub; hub **Folytatás** routes to duel or tie-break
 - [x] `npm run build` + `npm run test` pass
 
 ## What was built
 
 | File | Purpose |
 |------|---------|
-| `src/hooks/useActiveTournament.ts` | Active tournament from `activeTournamentId` |
-| `src/components/tournament/TournamentSetupForm.tsx` | Player select, shuffle, duel round stepper, name |
-| `src/components/tournament/TournamentProgressPanel.tsx` | Hub progress blocks (Hungarian labels) |
-| `src/pages/TournamentNewPage.tsx` | Új bajnokság setup screen |
-| `src/pages/TournamentHubPage.tsx` | Bajnokság központ, CTAs, abandon, advance round |
-| `src/pages/HomePage.tsx` | Új bajnokság, tournament Folytatás, abandon |
-| `src/components/match/MatchSetupForm.tsx` | Block if tournament active; clear `activeTournamentId` on new match |
-| `src/App.tsx` | Tournament routes + duel placeholder |
-| `src/utils/tournament.ts` | `abandonActiveTournament`, `activateDuel`, `updateActiveTournament`, … |
-| `src/index.css` | `.tournament-progress`, `.tournament-hub__*` |
+| `src/pages/TournamentDuelPage.tsx` | Párharc score entry, összesen, lezárás |
+| `src/pages/TournamentTiebreakPage.tsx` | Döntő kör flow, repeat if tied |
+| `src/utils/tournament.ts` | `findDuelById`, `finishDuel`, `updateDuelById`, tie-break helpers |
+| `src/pages/TournamentHubPage.tsx` | Folytatás → duel or tie-break when appropriate |
+| `src/App.tsx` | Real duel + tiebreak routes |
+| `src/index.css` | `.duel-totals`, `.tiebreak-page__*` |
 
 ## Routes
 
-| Route | Screen | Notes |
-|-------|--------|-------|
-| `/tournament/new` | `TournamentNewPage` | Setup; redirects if session blocked |
-| `/tournament` | `TournamentHubPage` | Progress + CTAs; redirect `/` if no active tournament |
-| `/tournament/duel` | Placeholder | Phase 3 replaces with score entry |
+| Route | Screen |
+|-------|--------|
+| `/tournament/duel` | `TournamentDuelPage` |
+| `/tournament/duel/tiebreak` | `TournamentTiebreakPage` |
 
-Meccs routes unchanged.
+Redirects: no active duel → `/tournament`; main incomplete on tiebreak → `/tournament/duel`; main tied on duel → `/tournament/duel/tiebreak`.
 
-## Active session rules (enforced in UI)
+## Duel flow
 
-| State | Home primary CTA | Blocked actions |
-|-------|------------------|-----------------|
-| Active meccs | Folytatás → `/match/play` | Új bajnokság (setup shows block) |
-| Active bajnokság | Folytatás → `/tournament` | Új meccs (setup shows block) |
-| None | — | Both **Új meccs** and **Új bajnokság** available |
+```mermaid
+flowchart TD
+  hub[Bajnokság központ] --> duel[Párharc N kör]
+  duel --> sum{Összesen}
+  sum -->|különböző| win[finishDuel → hub]
+  sum -->|egyenlő| tb[Döntő kör]
+  tb --> cmp{Összesen}
+  cmp -->|különböző| win
+  cmp -->|egyenlő| tb
+```
 
-Starting a tournament sets `activeTournamentId` and clears `activeMatchId`. Starting a match clears `activeTournamentId`.
+| Step | UI | Logic |
+|------|-----|--------|
+| Score main rounds | `TournamentDuelPage` | `parseScoreInput`, 0–10 per player per round |
+| All rounds filled | Összesen + **Párharc lezárása** | `compareMainDuelTotals` |
+| Clear winner | — | `finishDuel`, `activeDuelId: null`, → hub |
+| Tie | Redirect | `needsTieBreak` → tiebreak page |
+| Tie-break round | **Döntő kör lezárása** | `compareTieBreakRound` on latest round |
+| Still tied | New playoff | `appendTieBreakRound`, stay on page |
+| Tie-break winner | — | `finishDuel` → hub |
 
-## Hub behaviour
+**Out of scope:** manual winner pick buttons.
 
-| UI block | Source |
-|----------|--------|
-| Aktuális szakasz | `getTournamentProgress().roundLabel` |
-| Hátralévő játékosok | `remainingPlayerCount` |
-| Hátralévő párharcok | `remainingDuelCount` |
-| Továbbjutók | `advancedPlayerIds` (+ erőnyerő in list) |
-| Aktuális párharc | `currentDuel` names |
-| Erőnyerő | `byePlayerId` |
-
-| CTA | When |
-|-----|------|
-| **Párharc indítása — A vs B** | Pending duel; activates duel → `/tournament/duel` |
-| **Folytatás — A vs B** | Duel already `active` |
-| **Következő szakasz** | All duels in round complete → `advanceBracket` |
-| Győztes üzenet | `championId` set (celebration screen = Phase 4) |
-| **Bajnokság elvetése** | Confirm; removes tournament (no Előzmények entry) |
-
-## `utils/tournament.ts` additions (Phase 2)
+## `utils/tournament.ts` additions (Phase 3)
 
 | Export | Role |
 |--------|------|
-| `abandonActiveTournament` | Remove active tournament; clear `activeTournamentId` |
-| `hasAnyTournamentScoresEntered` | Abandon confirm copy |
-| `activateDuel` | Set `activeDuelId`, duel `status: active` |
-| `updateActiveTournament` | Immutable update helper for pages |
-| `getActiveTournament` | Lookup active tournament in state |
+| `findDuelById` / `getActiveDuel` | Resolve active párharc |
+| `updateDuelById` | Immutable duel updates in bracket |
+| `finishDuel` | Set `winnerId`, `completed`, clear `activeDuelId` |
+| `getDuelMainTotals` | Display összesen on duel page |
+| `getDuelRoundByIndex` / `canAdvanceFromDuelRound` | Round navigation |
+| `getIncompleteTieBreakRound` / `appendTieBreakRound` | Tie-break playoffs |
+| `winnerIdFromOutcome` | Map `'a'` / `'b'` → `playerId` |
 
 ## Verification
 
@@ -92,34 +83,32 @@ Starting a tournament sets `activeTournamentId` and clears `activeMatchId`. Star
 |-------|--------|
 | `npm run build` | Pass |
 | `npm run test` | 8/8 pass |
-| Meccs flow | Unchanged routes and play/end/history |
-| Tournament setup | Creates tournament + navigates to hub |
-| Placeholder duel | `/tournament/duel` — back to hub |
+| Meccs routes | Unchanged |
+| Round titles in duels | Omitted (per plan v1) |
 
 ## Manual smoke test (recommended)
 
-- [ ] Home → **Új bajnokság** → 3+ players, shuffle on, start → hub shows progress
-- [ ] Home with active bajnokság → **Folytatás** only (no meccs Folytatás)
-- [ ] **Új meccs** blocked while bajnokság active
-- [ ] **Párharc indítása** → placeholder → back to hub
-- [ ] **Bajnokság elvetése** → home, no history entry
-- [ ] Start meccs after abandon bajnokság works
+- [ ] Start bajnokság (3+ players) → hub → párharc → score all rounds → lezárás → back to hub
+- [ ] Force tie (equal totals) → döntő kör → resolve winner → hub
+- [ ] Tie on döntő kör → second playoff → winner → hub
+- [ ] **Következő szakasz** after all duels in round complete
+- [ ] **Folytatás** reopens active duel or tie-break correctly
+- [ ] Meccs flow still works
 
-## Not in Phase 2 (by design)
+## Not in Phase 3 (by design)
 
-- Real duel score entry (`TournamentDuelPage`) — Phase 3
-- Tie-break page — Phase 3
-- Champion celebration — Phase 4
-- Tournament history — Phase 5
+- Champion celebration screen — Phase 4
+- Tournament finalize / history — Phases 4–5
+- Round funny titles in duels
 
 ## Next phase
 
-**Phase 3 — Duel + tie-break**
+**Phase 4 — Champion celebration**
 
-- `TournamentDuelPage` (N rounds, reuse `RoundScoreGrid`)
-- `TournamentTiebreakPage` (1 round playoffs, auto-repeat if tied)
-- Replace `/tournament/duel` placeholder
-- Wire duel completion → hub / tie-break / advance
+- `TournamentChampionPage` (large **Bajnokság győztese**, trophy CSS)
+- Optional confetti / applause
+- Finalize tournament, prune, clear `activeTournamentId`
+- Hub links to champion when `championId` set
 
 ## References
 
@@ -129,6 +118,5 @@ Starting a tournament sets `activeTournamentId` and clears `activeMatchId`. Star
 ## History
 
 - 2026-05-27 — MVP Meccs Phases 0–8.
-- 2026-05-27 — Bajnokság Phase 0: Meccs stability review.
-- 2026-05-27 — Bajnokság Phase 1: schema v2, tournament utils, tests.
-- 2026-05-27 — Bajnokság Phase 2: setup, home, hub shell, session guards.
+- 2026-05-27 — Bajnokság Phase 0–2.
+- 2026-05-27 — Bajnokság Phase 3: duel + tie-break scoring.

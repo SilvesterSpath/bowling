@@ -1248,3 +1248,23 @@ fieldset.match-setup__section > .match-setup__hint {
   flex-wrap: wrap;
   gap: var(--space-xs);
 }
+
+.duel-totals {
+  margin: 0;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-gold);
+}
+
+.tiebreak-page__intro {
+  color: var(--color-gold);
+  font-weight: 600;
+}
+
+.tiebreak-page__context {
+  margin: 0 0 var(--space-md);
+  text-align: center;
+  font-size: 0.95rem;
+  color: var(--color-muted);
+}
