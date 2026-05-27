@@ -802,6 +802,33 @@ p {
 .score-grid__label {
   font-weight: 700;
   font-size: 1.1rem;
+  min-width: 0;
+}
+
+.player-line {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.player-line__name {
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.player-line__title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-gold);
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-shell--compact .player-line__title {
+  font-size: 0.75rem;
 }
 
 .score-grid__input {

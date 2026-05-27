@@ -1,16 +1,19 @@
 import type { Player } from '../../types';
 import type { Round } from '../../types';
 import { displayName } from '../../utils/format';
+import { PlayerNameWithTitle } from './PlayerNameWithTitle';
 
 interface RoundScoreGridProps {
   round: Round;
   players: Player[];
+  titlesByPlayerId: Map<string, string>;
   onScoreChange: (playerId: string, value: string) => void;
 }
 
 export function RoundScoreGrid({
   round,
   players,
+  titlesByPlayerId,
   onScoreChange,
 }: RoundScoreGridProps) {
   return (
@@ -27,7 +30,10 @@ export function RoundScoreGrid({
             className={`score-grid__row${missing ? ' score-grid__row--missing' : ''}`}
           >
             <label className="score-grid__label" htmlFor={`score-${player.id}`}>
-              {displayName(player)}
+              <PlayerNameWithTitle
+                name={displayName(player)}
+                title={titlesByPlayerId.get(player.id)}
+              />
             </label>
             <input
               id={`score-${player.id}`}

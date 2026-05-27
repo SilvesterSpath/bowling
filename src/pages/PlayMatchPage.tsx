@@ -7,6 +7,7 @@ import { PageHeader } from '../components/layout/PageHeader';
 import { useActiveMatch } from '../hooks/useActiveMatch';
 import { useAppState } from '../hooks/useAppState';
 import { sortPlayersByName } from '../utils/players';
+import { computeRoundTitles } from '../utils/roundTitles';
 import {
   areAllRoundsComplete,
   canAdvanceFromRound,
@@ -32,6 +33,22 @@ export function PlayMatchPage() {
       ) ?? null
     );
   }, [activeMatch, state.matches]);
+
+  const roundTitlesByPlayerId = useMemo(() => {
+    if (!matchFromState) {
+      return new Map<string, string>();
+    }
+    const viewedRound = getRoundByIndex(matchFromState, roundIndex);
+    if (!viewedRound) {
+      return new Map<string, string>();
+    }
+    const titles = computeRoundTitles(
+      viewedRound,
+      roundIndex,
+      matchFromState.playerIds,
+    );
+    return new Map(titles.map((title) => [title.playerId, title.label]));
+  }, [matchFromState, roundIndex]);
 
   if (!activeMatch || !matchFromState) {
     return <Navigate to='/' replace />;
@@ -106,6 +123,7 @@ export function PlayMatchPage() {
       <RoundScoreGrid
         round={round}
         players={players}
+        titlesByPlayerId={roundTitlesByPlayerId}
         onScoreChange={handleScoreChange}
       />
 
