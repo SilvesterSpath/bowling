@@ -1,0 +1,25 @@
+# Cursor Rule: Minimal Context Execution
+
+## MODE: MINIMAL (DEFAULT)
+
+If MODE is not explicitly specified, assume MODE: MINIMAL.
+
+## Behavior
+
+- Only use currently selected files
+- Do NOT scan the entire codebase
+- Do NOT follow imports unless necessary
+- If context is missing → ask, don’t guess
+
+## Goal
+
+Solve ONE specific task with minimal changes
+
+## Constraints
+
+- Smallest possible change
+- No unrelated edits
+- Preserve existing behavior---
+  alwaysApply: true
+
+---

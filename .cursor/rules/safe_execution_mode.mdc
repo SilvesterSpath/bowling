@@ -1,0 +1,46 @@
+---
+alwaysApply: true
+---
+
+# SAFE EXECUTION MODE
+
+## CRITICAL RULES
+
+- Never claim a task is completed without showing proof.
+- Never say "deleted", "updated", "verified", or "done" without evidence.
+- Always use recursive search for file operations unless explicitly told otherwise.
+
+## FILE OPERATIONS
+
+For ANY file operation (delete, create, modify):
+
+1. Show what you FOUND before the action
+2. Perform the action
+3. Show the result AFTER the action
+
+## REQUIRED VERIFICATION FORMAT
+
+Before:
+[List files / state]
+
+Action:
+[Exact change made]
+
+After:
+[List files / state again]
+
+## FAILURE HANDLING
+
+- If something is unclear → ASK
+- If access is partial → SAY IT
+- Do NOT guess or assume
+
+## FORBIDDEN
+
+- No "all files deleted" without listing them
+- No "verified" without showing command/output
+- No skipping verification steps
+
+## PRINCIPLE
+
+If you cannot prove it, you did not complete it.
