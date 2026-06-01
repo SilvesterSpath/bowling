@@ -703,6 +703,37 @@ export function getIncompleteTieBreakRound(
   return { round: rounds[index], index };
 }
 
+/**
+ * Playoff round the tiebreak UI should show: in-progress scoring, or the latest
+ * complete round that already has a winner (awaiting "Döntő kör lezárása").
+ */
+export function getTieBreakPlayoffRound(
+  duel: TournamentDuel,
+): { round: Round; index: number } | null {
+  const incomplete = getIncompleteTieBreakRound(duel);
+  if (incomplete) {
+    return incomplete;
+  }
+
+  const latest = getLatestCompleteTieBreakRound(duel);
+  if (!latest) {
+    return null;
+  }
+
+  const outcome = compareTieBreakRound(duel, latest);
+  if (outcome === 'tie' || outcome === 'incomplete') {
+    return null;
+  }
+
+  const rounds = duel.tieBreakRounds ?? [];
+  const index = rounds.lastIndexOf(latest);
+  if (index < 0) {
+    return null;
+  }
+
+  return { round: latest, index };
+}
+
 export function appendTieBreakRound(duel: TournamentDuel): TournamentDuel {
   const newRound = createTieBreakRound(duel.playerAId, duel.playerBId);
   return {
@@ -726,7 +757,15 @@ export function ensureDuelTieBreakRound(
   tournament: Tournament,
   duelId: DuelId,
 ): Tournament {
-  return updateDuelById(tournament, duelId, ensureIncompleteTieBreakRound);
+  const current = findDuelById(tournament, duelId);
+  if (!current) {
+    return tournament;
+  }
+  const prepared = ensureIncompleteTieBreakRound(current);
+  if (prepared === current) {
+    return tournament;
+  }
+  return updateDuelById(tournament, duelId, () => prepared);
 }
 
 export function winnerIdFromOutcome(

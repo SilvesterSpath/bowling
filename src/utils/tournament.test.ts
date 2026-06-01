@@ -9,6 +9,7 @@ import {
   ensureIncompleteTieBreakRound,
   getIncompleteTieBreakRound,
   getRoundLabel,
+  getTieBreakPlayoffRound,
   getTournamentEliminationRankings,
   resolveDuelWinner,
 } from './tournament';
@@ -433,5 +434,57 @@ describe('ensureIncompleteTieBreakRound', () => {
     const preparedTwice = ensureIncompleteTieBreakRound(preparedOnce);
 
     expect(preparedTwice.tieBreakRounds).toHaveLength(1);
+  });
+});
+
+describe('getTieBreakPlayoffRound', () => {
+  it('returns the in-progress playoff round', () => {
+    const duel = createTournament({
+      name: 'T',
+      playerIds: ['a', 'b'],
+      roundsPerDuel: 1,
+    }).bracketRounds[0].duels[0];
+
+    const prepared = ensureIncompleteTieBreakRound({
+      ...duel,
+      rounds: duel.rounds.map((round) =>
+        fillRoundScores(round, 5, 5, duel.playerAId, duel.playerBId),
+      ),
+    });
+
+    expect(getTieBreakPlayoffRound(prepared)).not.toBeNull();
+  });
+
+  it('returns the latest complete round when a winner is decided but duel is open', () => {
+    const duel = createTournament({
+      name: 'T',
+      playerIds: ['a', 'b'],
+      roundsPerDuel: 1,
+    }).bracketRounds[0].duels[0];
+
+    const tiedMain = {
+      ...duel,
+      rounds: duel.rounds.map((round) =>
+        fillRoundScores(round, 5, 5, duel.playerAId, duel.playerBId),
+      ),
+    };
+    const tieBreakRound = fillRoundScores(
+      createEmptyRounds([duel.playerAId, duel.playerBId], 1)[0],
+      8,
+      3,
+      duel.playerAId,
+      duel.playerBId,
+    );
+
+    const withWinner = {
+      ...tiedMain,
+      tieBreakRounds: [tieBreakRound],
+    };
+
+    expect(getIncompleteTieBreakRound(withWinner)).toBeNull();
+    expect(getTieBreakPlayoffRound(withWinner)).toEqual({
+      round: tieBreakRound,
+      index: 0,
+    });
   });
 });

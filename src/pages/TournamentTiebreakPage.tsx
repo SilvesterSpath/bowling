@@ -14,11 +14,13 @@ import {
   appendTieBreakRound,
   compareTieBreakRound,
   ensureIncompleteTieBreakRound,
+  findDuelById,
   finishDuel,
   getActiveDuel,
   getDuelMainTotals,
-  getIncompleteTieBreakRound,
+  getTieBreakPlayoffRound,
   isDuelMainComplete,
+  needsAnotherTieBreakRound,
   needsTieBreak,
   updateActiveTournament,
   updateDuelById,
@@ -47,8 +49,8 @@ export function TournamentTiebreakPage() {
     [tournament],
   );
 
-  const tieBreakEntry = useMemo(
-    () => (duel ? getIncompleteTieBreakRound(duel) : null),
+  const playoffEntry = useMemo(
+    () => (duel ? getTieBreakPlayoffRound(duel) : null),
     [duel],
   );
 
@@ -58,12 +60,12 @@ export function TournamentTiebreakPage() {
   );
 
   const tieBreakTitleRoundIndex =
-    tournament && tieBreakEntry
-      ? tournament.roundsPerDuel + tieBreakEntry.index + 1
+    tournament && playoffEntry
+      ? tournament.roundsPerDuel + playoffEntry.index + 1
       : 1;
 
   const roundTitlesByPlayerId = useRoundTitleDisplayMap(
-    tieBreakEntry?.round,
+    playoffEntry?.round,
     tieBreakTitleRoundIndex,
     duelPlayerIds,
   );
@@ -75,14 +77,25 @@ export function TournamentTiebreakPage() {
     if (!needsTieBreak(duel, tournament.roundsPerDuel)) {
       return;
     }
-    if (getIncompleteTieBreakRound(duel)) {
+    if (getTieBreakPlayoffRound(duel)) {
+      return;
+    }
+    if (!needsAnotherTieBreakRound(duel)) {
       return;
     }
 
     update((prev) =>
-      updateActiveTournament(prev, (t) =>
-        updateDuelById(t, duel.id, ensureIncompleteTieBreakRound),
-      ),
+      updateActiveTournament(prev, (t) => {
+        const current = findDuelById(t, duel.id);
+        if (!current) {
+          return t;
+        }
+        const prepared = ensureIncompleteTieBreakRound(current);
+        if (prepared === current) {
+          return t;
+        }
+        return updateDuelById(t, duel.id, () => prepared);
+      }),
     );
   }, [duel, tournament, update]);
 
@@ -102,7 +115,7 @@ export function TournamentTiebreakPage() {
     return <Navigate to='/tournament/duel' replace />;
   }
 
-  if (!tieBreakEntry) {
+  if (!playoffEntry) {
     return (
       <AppShell compact>
         <PageHeader
@@ -117,7 +130,7 @@ export function TournamentTiebreakPage() {
     );
   }
 
-  const { round: tieBreakRound, index: tieBreakIndex } = tieBreakEntry;
+  const { round: tieBreakRound, index: tieBreakIndex } = playoffEntry;
   const playoffNumber = tieBreakIndex + 1;
 
   const players = sortPlayersByName(
