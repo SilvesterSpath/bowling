@@ -22,7 +22,6 @@ import {
   getDuelMainTotals,
   getDuelRoundByIndex,
   isDuelMainComplete,
-  needsTieBreak,
   updateActiveTournament,
   updateDuelById,
   winnerIdFromOutcome,
@@ -78,10 +77,6 @@ export function TournamentDuelPage() {
     return <Navigate to='/tournament' replace />;
   }
 
-  if (needsTieBreak(duel, tournament.roundsPerDuel)) {
-    return <Navigate to='/tournament/duel/tiebreak' replace />;
-  }
-
   const players = sortPlayersByName(
     state.players.filter(
       (player) => player.id === duel.playerAId || player.id === duel.playerBId,
@@ -90,6 +85,7 @@ export function TournamentDuelPage() {
 
   const roundComplete = canAdvanceFromDuelRound(duel, roundIndex);
   const allMainComplete = isDuelMainComplete(duel, tournament.roundsPerDuel);
+  const mainOutcome = allMainComplete ? compareMainDuelTotals(duel) : null;
   const totals = getDuelMainTotals(duel);
   const playerA = players.find((p) => p.id === duel.playerAId);
   const playerB = players.find((p) => p.id === duel.playerBId);
@@ -193,7 +189,7 @@ export function TournamentDuelPage() {
               className='btn btn--primary btn--block'
               onClick={handleFinishDuel}
             >
-              Párharc lezárása
+              {mainOutcome === 'tie' ? 'Döntő kör indítása' : 'Párharc lezárása'}
             </button>
           </>
         ) : (

@@ -711,6 +711,24 @@ export function appendTieBreakRound(duel: TournamentDuel): TournamentDuel {
   };
 }
 
+/** Idempotent: adds a playoff round only when one is needed and none is in progress. */
+export function ensureIncompleteTieBreakRound(duel: TournamentDuel): TournamentDuel {
+  if (getIncompleteTieBreakRound(duel)) {
+    return duel;
+  }
+  if (!needsAnotherTieBreakRound(duel)) {
+    return duel;
+  }
+  return appendTieBreakRound(duel);
+}
+
+export function ensureDuelTieBreakRound(
+  tournament: Tournament,
+  duelId: DuelId,
+): Tournament {
+  return updateDuelById(tournament, duelId, ensureIncompleteTieBreakRound);
+}
+
 export function winnerIdFromOutcome(
   duel: TournamentDuel,
   outcome: Exclude<DuelOutcome, 'tie' | 'incomplete'>,

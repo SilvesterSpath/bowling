@@ -6,6 +6,8 @@ import {
   compareMainDuelTotals,
   createTournament,
   eliminationRankForBracketRound,
+  ensureIncompleteTieBreakRound,
+  getIncompleteTieBreakRound,
   getRoundLabel,
   getTournamentEliminationRankings,
   resolveDuelWinner,
@@ -389,5 +391,47 @@ describe('resolveDuelWinner', () => {
     };
     expect(isRoundComplete(tieBreak2)).toBe(true);
     expect(resolveDuelWinner(afterTb2, 1)).toBe('a');
+  });
+});
+
+describe('ensureIncompleteTieBreakRound', () => {
+  it('adds the first playoff round after a main-round tie', () => {
+    const duel = createTournament({
+      name: 'T',
+      playerIds: ['a', 'b'],
+      roundsPerDuel: 3,
+    }).bracketRounds[0].duels[0];
+
+    const tiedMain = {
+      ...duel,
+      rounds: duel.rounds.map((round) =>
+        fillRoundScores(round, 5, 5, duel.playerAId, duel.playerBId),
+      ),
+    };
+
+    expect(getIncompleteTieBreakRound(tiedMain)).toBeNull();
+
+    const prepared = ensureIncompleteTieBreakRound(tiedMain);
+    expect(prepared.tieBreakRounds).toHaveLength(1);
+    expect(getIncompleteTieBreakRound(prepared)).not.toBeNull();
+  });
+
+  it('is idempotent when a playoff round is already in progress', () => {
+    const duel = createTournament({
+      name: 'T',
+      playerIds: ['a', 'b'],
+      roundsPerDuel: 1,
+    }).bracketRounds[0].duels[0];
+
+    const tiedMain = {
+      ...duel,
+      rounds: duel.rounds.map((round) =>
+        fillRoundScores(round, 5, 5, duel.playerAId, duel.playerBId),
+      ),
+    };
+    const preparedOnce = ensureIncompleteTieBreakRound(tiedMain);
+    const preparedTwice = ensureIncompleteTieBreakRound(preparedOnce);
+
+    expect(preparedTwice.tieBreakRounds).toHaveLength(1);
   });
 });

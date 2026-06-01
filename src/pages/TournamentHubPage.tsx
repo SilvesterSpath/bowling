@@ -19,6 +19,7 @@ import {
   isBracketRoundComplete,
   isDuelMainComplete,
   needsTieBreak,
+  ensureDuelTieBreakRound,
   updateActiveTournament,
 } from '../utils/tournament';
 
@@ -74,12 +75,29 @@ export function TournamentHubPage() {
       return;
     }
     if (currentDuel.status === 'active') {
-      const target =
-        isDuelMainComplete(currentDuel, activeTournament.roundsPerDuel) &&
-        needsTieBreak(currentDuel, activeTournament.roundsPerDuel)
-          ? '/tournament/duel/tiebreak'
-          : '/tournament/duel';
-      navigate(target);
+      const mainComplete = isDuelMainComplete(
+        currentDuel,
+        activeTournament.roundsPerDuel,
+      );
+      const requiresTieBreak = needsTieBreak(
+        currentDuel,
+        activeTournament.roundsPerDuel,
+      );
+
+      if (mainComplete && requiresTieBreak) {
+        const result = update((prev) =>
+          updateActiveTournament(prev, (t) =>
+            ensureDuelTieBreakRound(t, currentDuel.id),
+          ),
+        );
+        if (!result.ok) {
+          return;
+        }
+        navigate('/tournament/duel/tiebreak');
+        return;
+      }
+
+      navigate('/tournament/duel');
       return;
     }
     const result = persistTournament(

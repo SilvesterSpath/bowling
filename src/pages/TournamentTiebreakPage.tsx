@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { RoundScoreGrid } from '../components/match/RoundScoreGrid';
 import { AppShell } from '../components/layout/AppShell';
@@ -13,6 +13,7 @@ import { isRoundComplete, parseScoreInput } from '../utils/scoring';
 import {
   appendTieBreakRound,
   compareTieBreakRound,
+  ensureIncompleteTieBreakRound,
   finishDuel,
   getActiveDuel,
   getDuelMainTotals,
@@ -67,6 +68,24 @@ export function TournamentTiebreakPage() {
     duelPlayerIds,
   );
 
+  useEffect(() => {
+    if (!tournament || !duel) {
+      return;
+    }
+    if (!needsTieBreak(duel, tournament.roundsPerDuel)) {
+      return;
+    }
+    if (getIncompleteTieBreakRound(duel)) {
+      return;
+    }
+
+    update((prev) =>
+      updateActiveTournament(prev, (t) =>
+        updateDuelById(t, duel.id, ensureIncompleteTieBreakRound),
+      ),
+    );
+  }, [duel, tournament, update]);
+
   if (!tournament || !duel) {
     return <Navigate to='/tournament' replace />;
   }
@@ -84,7 +103,18 @@ export function TournamentTiebreakPage() {
   }
 
   if (!tieBreakEntry) {
-    return <Navigate to='/tournament/duel' replace />;
+    return (
+      <AppShell compact>
+        <PageHeader
+          title='Döntő kör'
+          backTo='/tournament/duel'
+          backLabel='Párharc'
+        />
+        <p className='play-page__hint' role='status'>
+          Döntő kör előkészítése…
+        </p>
+      </AppShell>
+    );
   }
 
   const { round: tieBreakRound, index: tieBreakIndex } = tieBreakEntry;
